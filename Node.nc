@@ -24,6 +24,8 @@ module Node{
    uses interface CommandHandler;
 
    uses interface Flooding;
+
+   uses interface NeighborDiscovery;
 }
 
 implementation{
