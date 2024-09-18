@@ -1,5 +1,5 @@
 module FloodingP{
-    provides inferface Flooding;
+    provides interface Flooding;
 }
 
 implementation{
