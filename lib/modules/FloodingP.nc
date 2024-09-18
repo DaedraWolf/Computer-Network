@@ -1,7 +1,7 @@
 module FloodingP{
-    provides inferface <name>;
+    provides inferface Flooding;
 }
 
 implementation{
-    command void <name>.flood(){}
+    command void Flooding.flood(){}
 }
