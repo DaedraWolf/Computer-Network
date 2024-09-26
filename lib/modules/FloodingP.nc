@@ -1,7 +1,7 @@
 module FloodingP{
     provides interface Flooding;
     uses interface SimpleSend;
-    uses interface Timer<TMilli> as FloodTimer;
+    uses interface Timer<TMilli> as sendTimer;
 }
 
 implementation{
@@ -28,10 +28,10 @@ implementation{
     }
 
     command void Flooding.start(){
-        call FloodTimer.startPeriodic(5000);
+        call sendTimer.startPeriodic(5000);
     }
 
-    event void FloodTimer.fired(){
+    event void sendTimer.fired(){
         sendPack();
     }
 }

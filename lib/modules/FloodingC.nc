@@ -10,5 +10,5 @@ implementation{
    Flooding = FloodingP.Flooding;
 
    components SimpleSendC;
-   SimpleFloodP.FloodTimer -> FloodTimer;
+   SimpleSendC.sendTimer -> sendTimer;
 }
