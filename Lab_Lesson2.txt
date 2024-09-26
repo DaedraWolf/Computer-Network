@@ -1,0 +1,194 @@
+File Explanations:
+
+TestSim.py: Tossim (simulation) script
+../includes: All the header files
+../lib: (Heavily modifying this folder)
+	> Implementations and logics
+../noise: 
+../topo: Topoligy- Defines how the network is connected 
+e.g.: Node 1, start topology; One main server connected to the other nodes.
+	Mesh topoligy: Nodes connected in a circle, out to a line of nodes.
+-----------------------------------------------------------------
+
+Node.nc: primary entry point (code for C)
+NodeC.nc: configuration file
+	> Components -> 
+		Config: <module> cnc  (Wiring definitions)
+		Implement: <module> P.nc
+		Interface <module>.nc
+			> Declare all the publically access files
+			> Hold all "P.nc" files
+			e.g. C2 communicates with C1
+
+Ex: A file called, "Calculate":
+../lib/interaces: Calculate.nc (publically access functions
+..lib/modules: CalculateC.nc (configuration of the wiring), CalculateP.nc (actual logic)
+		e.g. ../modules: CalculateP.nc: 
+				module CalculateP {} (What is used and provided)
+				implementation {} (Tell you the actual logic of the component) 
+		     ../modules: CalculateC.nc
+				configuration{} (What is being provided)
+				implementation{} (Specific wiring)
+
+			../interfaces Calculate.nc: (Publically access functions of your components)
+------------------------------------------------------------------
+				Node.nc: (Node implementation)
+			
+				NodeC.nc: (configuration{}, implementation{})
+					implementation {... comonents CalculateC;}
+					Node.Calculate -> CalculateC; (Can be directly accessed in Node)
+					
+Wiring: 
+Step 1: Access Node.nc
+	-> module {
+			uses inferface Calculate; }
+Step 2: Access NodeC.nc (Contains the wiring)
+	-> implementation{
+		Declare components CalculateC; }
+			Node.Calculate -> CalculateC; (Can be directly accessed in Node)
+
+Run Emulator/Simulator:
+
+TestSim.py
+def main();
+s= TestSim()
+s.rumTime(10) (10 ticks)
+s.loadTopo("long_line.topo") --> (
+
+CMD_CALCULATE = 10.. (Create a new comnand called CommandHandlerC.nc && CommandHandlerP.nc)
+	../lib/modules:
+		CommandHandlerC.nc
+switch{
+case CMD_CALCULTE:
+	dbg [Specify:(Print statement in TinyOS terminal)]
+	signal
+}
+
+event <---> command
+		
+**Command**(More important) -> Keyword "call [command](parameters)" (Executing a function) 
+Signal --> Keyword "task"
+
+
+../includes/packet.h:
+struct --> (Best algorithm for the information to where it needs to be sent)
+  e.g.: typedef nx_struct pack {
+	}
+	pack;
+
+Collition domain: Two Nodes, in the same area (not discovering each other)
+Discovery Packets: Discovers the packets in the same area.
+TTL /*Time to live. */ (Loop counter decrementing through jumps) 
+
+How to make a packet:
+``
+Node.nc (Function at end of code):
+
+void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
+      Package->src = src;
+      Package->dest = dest;
+      Package->TTL = TTL;
+      Package->seq = seq;
+      Package->protocol = protocol;
+      memcpy(Package->payload, payload, length);
+   }
+}``
+
+Sequence Number: # of packets in a protocol
+	Probe the environment to see if there are any devices
+
+CalculateP.nc:
+
+implementation{
+pack sendPackage;
+
+makePack: Creates/makes the packets with contents.
+}
+vvvvvvvvvvvv
+
+TinyOS, how to broadcast a packet:
+
+TOS_NODE_ID (Device ID)
+AM_BROADCAST_ADDR (Broadcast the packet) **Put in destination**
+
+
+PROJECT 1: Flooding and Neighbor Discovery:
+
+Make packet: Destination(DEVICES NAME)
+Simple Send: Package [NAME/VARIABLE] SEND TO --> (AM_BROADCAST_ADDR) and broadcast it
+5 people get packet, check destination, IF NOT URS, send to broadcast -> (AM_BROADCAST_ADDR)
+IF NOT URS:
+	Unpack the packet, read the destination.
+	Rebroadcast again, until sent to right person
+
+
+Topo file: Contains 9 nodes.
+Flooding: 
+Neighbor Discovery: Broadcasting packet; (Allowing Adjacent nodes whos next)
+	node1 --> node2 (every 1 s)
+	Two Protocols:
+	Neighdis Rep
+	Neigh Res
+	AM_BROADCAST_ADDR
+
+How you know if its sending every 1 second? Use:
+Clocks in Tiny OS: Timers.h
+
+../lib/modules -> P file
+How to use timers:
+module lineAppP {
+	provides interface lineApp;
+	uses inteface SimpleSend;
+	uses interface Timer<TMilli> as sendTimer;
+	uses interface Timer<TMilli> as delayTimer;
+	uses inferface Timer<TMilli> as beaconTimer;
+}
+
+../lib/modules -> lineAppP.nc
+
+command error_t lineApp.start(){
+	if(TOS_NODE_ID == ROOTNODE){
+		if(DEBUG ==1){
+			printf("I am %d\n", TOS_NODE_ID);
+		}
+	}
+}
+call delayTimer.startOneShot(START_DELAY * 1000);
+// call <timerName>.startOneShot(<time>);
+
+Showing time:
+Node1 -- Dummy packet (@5 seconds) --> node2
+t=0 (booted)
+
+StartOneShot (One specific packet at a time)
+StartPeriodic (Beacon and simple send, Every 5 seconds periodically)
+
+OneShot 
+Call <OneShot>
+Timers.h  -> 5000 (declaring time in ms)
+Note: Every 5 seconds it needs to call a function (t=5), -> Call doSend 
+do func {} which is:
+event void beaconTimer.fired() {
+	makePack &beaconUp, (__,___, beaconSeqNum);
+	makePack &beaconDownp, (__,___, beaconSeqNum);
+	call SimpleSend.send(beaconUp, AM_BROADCAST_ADDR);
+	call SimpleSend.send(beaconDown, AM_BROADCAST_ADDR);
+	beaconSeqNum++;
+}
+
+NeighborDiscoveryRequest: Send a response/reply
+Steps in TinyOS:
+Recieve and identify the packet, call func.
+Calling a function, makePack, SimpleSend
+
+Node2; At this point which 
+
+Node.nc Line 57. 
+Note: What ever packet is being recieved is here. packet is beimg unpacked
+
+
+FLOODING: 
+(No timing required)
+MakePack send --> Send --> Sequence #'s sending packet.
+Neighbor discovery
+Sequence Protocol
