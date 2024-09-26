@@ -2,13 +2,12 @@
 
 configuration FloodingC{
    provides interface Flooding;
-   uses interface SimpleSend;
 }
 
 implementation{
    components FloodingP;
    Flooding = FloodingP.Flooding;
 
-   components SimpleSendC;
-   SimpleSendC.sendTimer -> sendTimer;
+   components new TimerMilliC() as sendTimer;
+   FloodingP.sendTimer -> sendTimer;
 }

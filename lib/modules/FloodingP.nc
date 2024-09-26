@@ -7,7 +7,7 @@ module FloodingP{
 implementation{
     uint8_t packet = "";
     uint16_t ttl = MAX_TTL;
-    uint16_t sequenceNum = 0;
+    uint16_t sequenceNum = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
 
     pack sendReq;
 
@@ -27,11 +27,11 @@ implementation{
         call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
     }
 
-    command void Flooding.start(){
-        call sendTimer.startPeriodic(5000);
-    }
-
     event void sendTimer.fired(){
         sendPack();
+    }
+
+    command void Flooding.start(){
+        call sendTimer.startPeriodic(5000);
     }
 }
