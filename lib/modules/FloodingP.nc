@@ -1,3 +1,5 @@
+#include "../../includes/channels.h"
+
 module FloodingP{
     provides interface Flooding;
     uses interface SimpleSend;
