@@ -13,7 +13,9 @@ implementation{
 
     pack sendReq;
 
-    command void Flooding.flood(){}
+    command void Flooding.flood(){
+        call sendTimer.startPeriodic(5000);
+    }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
         Package->src = src;
@@ -25,15 +27,11 @@ implementation{
     }
 
     void sendPack(){
-        makePack(&sendReq, TOS_NODE_ID, AM_BROADCAST_ADDR, MAX_TTL, PROTOCOL_FLOOD, 0, {1}, packet); 
+        makePack(&sendReq, TOS_NODE_ID, AM_BROADCAST_ADDR, MAX_TTL, PROTOCOL_PING, 0, {1}, packet); 
         call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
     }
 
     event void sendTimer.fired(){
         sendPack();
-    }
-
-    command void Flooding.start(){
-        call sendTimer.startPeriodic(5000);
     }
 }
