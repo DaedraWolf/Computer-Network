@@ -8,6 +8,6 @@ implementation{
    components FloodingP;
    Flooding = FloodingP.Flooding;
 
-   components TimerMilliC() as sendTimer;
+   components new TimerMilliC() as sendTimer;
    FloodingP.sendTimer -> sendTimer;
 }
