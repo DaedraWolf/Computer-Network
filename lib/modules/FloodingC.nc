@@ -10,4 +10,7 @@ implementation{
 
    components new TimerMilliC() as sendTimer;
    FloodingP.sendTimer -> sendTimer;
+
+   components new SimpleSendC(AM_PACK);
+   FloodingP.SimpleSend -> SimpleSendC;
 }
