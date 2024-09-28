@@ -10,6 +10,7 @@ implementation{
     uint8_t packet = "";
     uint16_t ttl = MAX_TTL;
     uint16_t sequenceNum = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
+    uint8_t* payload = {1};
 
     pack sendReq;
 
@@ -27,7 +28,7 @@ implementation{
     }
 
     void sendPack(){
-        makePack(&sendReq, TOS_NODE_ID, AM_BROADCAST_ADDR, MAX_TTL, PROTOCOL_PING, 0, {1}, packet); 
+        makePack(&sendReq, TOS_NODE_ID, AM_BROADCAST_ADDR, MAX_TTL, PROTOCOL_PING, 0, payload, packet); 
         call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
     }
 
