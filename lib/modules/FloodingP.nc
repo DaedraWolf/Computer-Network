@@ -39,8 +39,9 @@ implementation{
     }
 
     void sendPack(){
-        makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_PING, 0, floodPayload, packet); 
+        makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_PING, sequenceNum, floodPayload, packet); 
         call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
+        dbg(FLOODING_CHANNEL, "Package sent from: %d\nSequence number: %d", TOS_NODE_ID, sequenceNum);
     }
 
     //sequenceNum=0;
