@@ -9,4 +9,7 @@ interface CommandHandler{
    event void setTestClient();
    event void setAppServer();
    event void setAppClient();
+   
+   // New Additions
+   event void flood();
 }

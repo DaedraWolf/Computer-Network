@@ -20,6 +20,7 @@ implementation{
     void sendPack();
 
     command void Flooding.flood(){
+        dbg(GENERAL_CHANNEL, "Starting Flood");
         call sendTimer.startPeriodic(5000);
     }
 
