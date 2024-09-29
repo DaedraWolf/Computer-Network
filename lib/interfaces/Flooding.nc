@@ -1,4 +1,4 @@
 interface Flooding {
     command void flood();
-    command void receivePack();
+    command void receivePack(pack *Package);
 }
