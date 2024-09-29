@@ -20,7 +20,7 @@ implementation{
     void sendPack();
 
     command void Flooding.flood(){
-        dbg(GENERAL_CHANNEL, "Starting Flood");
+        dbg(GENERAL_CHANNEL, "Starting Flood\n");
         call sendTimer.startPeriodic(5000);
     }
 
@@ -45,7 +45,7 @@ implementation{
         if(sequenceNum < MAX_SEQ){
             makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_PING, sequenceNum, floodPayload, packet); 
             call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
-            dbg(FLOODING_CHANNEL, "Package sent from: %d\nSequence number: %d", TOS_NODE_ID, sequenceNum);
+            dbg(FLOODING_CHANNEL, "Package sent from: %d,Sequence number: %d\n", TOS_NODE_ID, sequenceNum);
             sequenceNum++;
         }
     }
