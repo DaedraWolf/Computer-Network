@@ -26,11 +26,11 @@ implementation{
     }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
-        Package->src = src;
-        Package->dest = dest;
-        Package->TTL = TTL;
-        Package->seq = seq;
-        Package->protocol = protocol;
+        Package->src = src; // Link Layer Head
+        Package->dest = dest; // Link Layer Head
+        Package->TTL = TTL; // Flooding Header
+        Package->seq = seq; // Flooding Header
+        Package->protocol = protocol; // Flooding Header
         memcpy(Package->payload, payload, length);
     }
 
@@ -38,4 +38,7 @@ implementation{
         makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_PING, 0, floodPayload, packet); 
         call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
     }
+
+    //sequenceNum=0;
+
 }

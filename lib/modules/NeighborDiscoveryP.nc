@@ -1,3 +1,5 @@
+#include "../../includes/channels.h"
+
 module NeighborDiscoveryP{
     provides interface NeighborDiscovery;
 }
