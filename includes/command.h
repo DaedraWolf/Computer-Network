@@ -17,6 +17,11 @@ enum{
 	CMD_TEST_CLIENT=4,
 	CMD_TEST_SERVER=5,
 	CMD_KILL=6,
+
+	// New additions
+	CMD_FLOOD=7,
+	// end of new additions
+
 	CMD_ERROR=9
 };
 
