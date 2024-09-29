@@ -21,6 +21,10 @@ implementation{
         call sendTimer.startPeriodic(5000);
     }
 
+    command void Flooding.receivePack(pack *Package){
+
+    }
+
     event void sendTimer.fired(){
         sendPack();
     }
