@@ -28,8 +28,9 @@ implementation{
 
     }
 
-    event void sendTimer.fired(){
+    event void sendTimer.fired(sequenceNum){
         sendPack();
+        sequnceNum++;
     }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
@@ -46,7 +47,6 @@ implementation{
             makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_PING, sequenceNum, floodPayload, packet); 
             call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
             dbg(FLOODING_CHANNEL, "Package sent from: %d,Sequence number: %d\n", TOS_NODE_ID, sequenceNum);
-            sequenceNum++;
         }
     }
     //sequenceNum=0;
