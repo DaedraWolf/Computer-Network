@@ -30,11 +30,18 @@ implementation{
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
-        pack* package = (pack*)payload;
-        if (package->protocol == PROTOCOL_NEIGHBOR) {
-            makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_NEIGHBOR, package->seq, neighborPayload, packet);
-            call SimpleSend.send(sendReq, sendReq.dest);
-            dbg(NEIGHBOR_CHANNEL, "Package returned from %d to %d; Sequence number: %d\n", TOS_NODE_ID, sendReq.dest, sendReq.seq);
+        if (len == sizeof(pack)) {
+            pack* package = (pack*)payload;
+            dbg(NEIGHBOR_CHANNEL, "Node %d received package from %d; Sequence number: %d\n", TOS_NODE_ID, package->src, package->seq);
+            // if (package->protocol == PROTOCOL_NEIGHBOR) {
+            //     if (package->payload == TOS_NODE_ID) {
+            //         dbg(NEIGHBOR_CHANNEL, "Package returned to %d by %d; Sequence number: %d\n", TOS_NODE_ID, sendReq.dest, sendReq.seq);
+            //     } else {
+            //         makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_NEIGHBOR, package->seq, neighborPayload, packet);
+            //         call SimpleSend.send(sendReq, sendReq.dest);
+            //         dbg(NEIGHBOR_CHANNEL, "Returning package to %d from %d; Sequence number: %d\n", sendReq.dest, TOS_NODE_ID, sendReq.seq);
+            //     }
+            // }
         }
     }
 
@@ -48,13 +55,9 @@ implementation{
     }
 
     void sendPack(){
-        uint8_t i = 1;
-        while (i <= MAX_NEIGHBORS) {
-            makePack(&sendReq, TOS_NODE_ID, i, MAX_TTL, PROTOCOL_NEIGHBOR, sequenceNum, neighborPayload, packet); 
-            call SimpleSend.send(sendReq, sendReq.dest);
-            dbg(NEIGHBOR_CHANNEL, "Package sent from %d to %d; Sequence number: %d\n", TOS_NODE_ID, i, sequenceNum);
-            i++;
-        }
+        makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_NEIGHBOR, sequenceNum, neighborPayload, packet); 
+        call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
+        dbg(NEIGHBOR_CHANNEL, "Node %d broadcasting package; Sequence number: %d\n", TOS_NODE_ID, sequenceNum);
         sequenceNum++;
     }
 }
