@@ -13,4 +13,7 @@ implementation{
 
    components new SimpleSendC(AM_PACK);
    NeighborDiscoveryP.SimpleSend -> SimpleSendC;
+
+   components new AMReceiverC(AM_PACK) as Receiver;
+	NeighborDiscoveryP.Receiver -> Receiver;
 }

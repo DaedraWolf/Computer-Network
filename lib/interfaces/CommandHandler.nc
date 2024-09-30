@@ -12,4 +12,5 @@ interface CommandHandler{
    
    // New Additions
    event void flood();
+   event void discoverNeighbors();
 }
