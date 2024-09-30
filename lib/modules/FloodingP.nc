@@ -49,7 +49,5 @@ implementation{
             sequenceNum++;
         }
     }
-        
-
     //sequenceNum=0;
 }
