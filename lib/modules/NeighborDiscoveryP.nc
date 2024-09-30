@@ -17,7 +17,7 @@ implementation{
     pack sendReq;
 
     //list of neighbors
-    //keep track of sequence # of last received packages
+    //keep track of sequence # at the time of last received packages
     //if difference between sequences >5, remove node from neighbors
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
