@@ -7,7 +7,7 @@ module NeighborDiscoveryP{
     uses interface SimpleSend;
     uses interface Timer<TMilli> as sendTimer;
     uses interface Receive as Receiver;
-    uses interface Hashmap<uint8_t>;
+    uses interface Hashmap<uint8_t>; //key = node #, value = sequenceNum at time of last neighbor discovery ping
 }
 
 implementation{
@@ -73,8 +73,9 @@ implementation{
         dbg(NEIGHBOR_CHANNEL, "Neighbors of Node %d: ", TOS_NODE_ID);
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             uint8_t lastPing = call Hashmap.get(i);
-            if (sequenceNum - lastPing < 5) {
-                dbg(NEIGHBOR_CHANNEL, "%d ", i);
+            uint8_t strength = sequenceNum - lastPing;
+            if (sequenceNum - lastPing <= 5) {
+                dbg(NEIGHBOR_CHANNEL, "%d (str: %d), ", i, ((5 - strength/sequenceNum)));
             }
         }
     }
