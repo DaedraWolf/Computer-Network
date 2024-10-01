@@ -18,9 +18,8 @@ implementation{
     uint8_t* neighborPayload = "";
     pack sendReq;
 
-    //list of neighbors
-    //keep track of sequence # at the time of last received packages
-    //if difference between sequences >5, remove node from neighbors
+    // To-Do
+    // function that deletes any disconnected neighbors from hashmap
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     void sendPack();
@@ -73,8 +72,9 @@ implementation{
         dbg(NEIGHBOR_CHANNEL, "Printing Neighbors of Node %d:\n", TOS_NODE_ID);
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             uint8_t lastPing = call Hashmap.get(i);
-            if (sequenceNum - lastPing <= 5) {
-                dbg(NEIGHBOR_CHANNEL, "%d (%d)\n", i, lastPing);
+            uint8_t age = sequenceNum - lastPing;
+            if (age <= 5) {
+                dbg(NEIGHBOR_CHANNEL, "%d; Time since last ping: %d\n", i, age);
             }
         }
     }
