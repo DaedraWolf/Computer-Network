@@ -27,6 +27,7 @@ def main():
     s.runTime(1);
 
     s.discoverNeighbors(2);
+    s.runTime(1);
     s.discoverNeighbors(3);
     s.runTime(10);
 

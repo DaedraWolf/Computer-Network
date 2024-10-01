@@ -16,4 +16,7 @@ implementation{
 
    components new AMReceiverC(AM_PACK) as Receiver;
 	NeighborDiscoveryP.Receiver -> Receiver;
+
+   components new HashmapC(uint8_t, 20);
+   NeighborDiscoveryP.Hashmap -> HashmapC;
 }
