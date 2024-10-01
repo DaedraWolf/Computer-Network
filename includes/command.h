@@ -20,7 +20,7 @@ enum{
 
 	// New additions
 	CMD_FLOOD=7,
-	CMD_HASH=8,
+	CMD_NEIGHBOR_DISCOVERY=8,
 	// end of new additions
 
 	CMD_ERROR=9

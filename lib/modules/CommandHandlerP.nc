@@ -83,6 +83,11 @@ implementation{
                 dbg(COMMAND_CHANNEL, "Command Type: Flood\n");
                 signal CommandHandler.flood();
                 break;
+
+            case CMD_NEIGHBOR_DISCOVERY:
+                dbg(COMMAND_CHANNEL, "Command Type: Neighbor Discovery\n");
+                signal CommandHandler.discoverNeighbors();
+                break;
             
             // End of new additions
 
