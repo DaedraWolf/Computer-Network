@@ -39,35 +39,37 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
-            dbg(NEIGHBOR_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->seq);
+            if (package->protocol == PROTOCOL_FLOODING) {
+                dbg(FLOODING_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->seq);
 
-            while (i < seqCount) {
-                if (receivedSeq[i] == package->seq) { // Checks for duplicates
-                    dbg(FLOODING_CHANNEL, "Dropping.. Duplicate packet\n");
-                    return msg; 
+                while (i < seqCount) {
+                    if (receivedSeq[i] == package->seq) { // Checks for duplicates
+                        dbg(FLOODING_CHANNEL, "Dropping.. Duplicate packet\n");
+                        return msg; 
+                    }
+                    i++;
                 }
-                i++;
-            }
 
-            receivedSeq[seqCount++] = package->seq;
-            if (seqCount >= MAX_SEQ) {
-                seqCount = 0; 
-            }
+                receivedSeq[seqCount++] = package->seq;
+                if (seqCount >= MAX_SEQ) {
+                    seqCount = 0; 
+                }
 
-            // Check if the current node is the destination otherwise
-            if (package->dest == TOS_NODE_ID) {
-                dbg(GENERAL_CHANNEL, "Packet received at destination: %d\n", TOS_NODE_ID, package->payload); //Flooding prevents nodes from discovering
-            } else {
-                if (package->TTL >= 0) {
-                    package->TTL--;
-                    dbg(FLOODING_CHANNEL, "Forwarding packet info from node: %d\n\t\t | TTL: %d |\n", TOS_NODE_ID, package->TTL);
-                    call SimpleSend.send(*package, AM_BROADCAST_ADDR);
+                // Check if the current node is the destination otherwise
+                if (package->dest == TOS_NODE_ID) {
+                    dbg(GENERAL_CHANNEL, "Packet received at destination: %d\n", TOS_NODE_ID, package->payload); //Flooding prevents nodes from discovering
                 } else {
-                    dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
+                    if (package->TTL >= 0) {
+                        package->TTL--;
+                        dbg(FLOODING_CHANNEL, "Forwarding packet info from node: %d\n\t\t | TTL: %d |\n", TOS_NODE_ID, package->TTL);
+                        call SimpleSend.send(*package, AM_BROADCAST_ADDR);
+                    } else {
+                        dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
+                    }
                 }
             }
+            return msg; 
         }
-        return msg; 
     }
 
     event void sendTimer.fired(){
@@ -77,7 +79,7 @@ implementation{
 
     void sendPack(){
         if(seqTracker < MAX_SEQ){
-            makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_PING, seqTracker, floodPayload, packet); 
+            makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_FLOODING, seqTracker, floodPayload, packet); 
             call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
             dbg(FLOODING_CHANNEL, "Package sent from: %d,\n\t (Sequence number: %d)\n", TOS_NODE_ID, seqTracker);
             seqTracker++;

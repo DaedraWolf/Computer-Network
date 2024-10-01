@@ -38,8 +38,10 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
-            dbg(NEIGHBOR_CHANNEL, "Node %d received package from %d; Sequence number: %d\n", TOS_NODE_ID, package->src, package->seq);
-            call Hashmap.insert(package->src, sequenceNum);
+            if (package->protocol == PROTOCOL_NEIGHBOR) {
+                dbg(NEIGHBOR_CHANNEL, "Node %d received package from %d; Sequence number: %d\n", TOS_NODE_ID, package->src, package->seq);
+                call Hashmap.insert(package->src, sequenceNum);
+            }
             // if (package->protocol == PROTOCOL_NEIGHBOR) {
             //     if (package->payload == TOS_NODE_ID) {
             //         dbg(NEIGHBOR_CHANNEL, "Package returned to %d by %d; Sequence number: %d\n", TOS_NODE_ID, sendReq.dest, sendReq.seq);
