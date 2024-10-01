@@ -70,12 +70,11 @@ implementation{
     }
 
     void printNeighbors() {
-        dbg(NEIGHBOR_CHANNEL, "Neighbors of Node %d: ", TOS_NODE_ID);
+        dbg(NEIGHBOR_CHANNEL, "Printing Neighbors of Node %d:\n", TOS_NODE_ID);
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             uint8_t lastPing = call Hashmap.get(i);
-            uint8_t strength = sequenceNum - lastPing;
             if (sequenceNum - lastPing <= 5) {
-                dbg(NEIGHBOR_CHANNEL, "%d (str: %d), ", i, ((5 - strength/sequenceNum)));
+                dbg(NEIGHBOR_CHANNEL, "%d (%d)\n", i, lastPing);
             }
         }
     }
