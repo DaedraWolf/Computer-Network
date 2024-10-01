@@ -44,11 +44,12 @@ implementation{
             pack* package = (pack*)payload; // Correct variable name to package
             dbg(NEIGHBOR_CHANNEL, "Node %d received package from %d; Sequence number: %d\n", TOS_NODE_ID, package->src, package->seq);
 
-            for (i = 0; i < receivedSeqCount; i++) {
-                if (receivedSeq[i] == package->seq) { // Use lowercase package
+            while (i < receivedSeqCount) {
+                if (receivedSeq[i] == package->seq) { // Check for duplicates
                     dbg(FLOODING_CHANNEL, "Duplicate packet, dropping\n");
                     return msg; // Return the message
                 }
+                i++;
             }
 
             receivedSeq[receivedSeqCount++] = package->seq;
