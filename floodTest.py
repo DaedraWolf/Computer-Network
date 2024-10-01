@@ -26,6 +26,7 @@ def main():
     s.ping(2, 6, "Hello, World");
     s.runTime(1);
 
+    # After FLOODING EVENT, s.flood(node), s.runtime(reruns clock)
     s.flood(1);
     s.runTime(20);
 
