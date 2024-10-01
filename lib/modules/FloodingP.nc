@@ -17,7 +17,7 @@ implementation{
     uint16_t seqTracker = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
     uint8_t* floodPayload[MAX_PAYLOAD];
     uint8_t i;
-    // Store a history of sequence #'s
+    // Store a list of sequence #'s
     uint16_t receivedSeq[MAX_SEQ]; // Store sequence numbers of received packets
     uint8_t seqCount = 0;  // Count of received sequence numbers
 
@@ -42,7 +42,7 @@ implementation{
             dbg(NEIGHBOR_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->seq);
 
             while (i < seqCount) {
-                if (receivedSeq[i] == package->seq) { // Check for duplicates
+                if (receivedSeq[i] == package->seq) { // Checks for duplicates
                     dbg(FLOODING_CHANNEL, "Dropping.. Duplicate packet\n");
                     return msg; 
                 }
@@ -54,7 +54,7 @@ implementation{
                 seqCount = 0; 
             }
 
-            // Check if the current node is the destination
+            // Check if the current node is the destination otherwise
             if (package->dest == TOS_NODE_ID) {
                 dbg(GENERAL_CHANNEL, "Packet received at destination: %d\n", TOS_NODE_ID, package->payload); //Flooding prevents nodes from discovering
             } else {
