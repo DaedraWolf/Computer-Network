@@ -14,6 +14,7 @@ class TestSim:
     CMD_NEIGHBOR_DUMP = 1
     CMD_ROUTE_DUMP=3
     CMD_FLOOD=7
+    CMD_NEIGHBOR_DISCOVERY=8
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -133,6 +134,9 @@ class TestSim:
     # New Additions
     def flood(self, destination):
         self.sendCMD(self.CMD_FLOOD, destination, "flooding command");
+
+    def discoverNeighbors(self, destination):
+        self.sendCMD(self.CMD_NEIGHBOR_DISCOVERY, destination, "discovery command")
     # end of new additions
 
 def main():

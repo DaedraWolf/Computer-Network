@@ -1,3 +1,3 @@
 interface NeighborDiscovery {
-    command void discover();
+    command void discoverNeighbors();
 }
