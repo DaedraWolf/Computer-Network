@@ -33,7 +33,7 @@ implementation{
         call sendTimer.startPeriodic(5000);
     }
 
-    // handle a recieved packet
+    // handle a recieved packet WIP FUTURE 
     command void Flooding.receivePack(pack *Package){
         dbg(FLOODING_CHANNEL, "Received packet at node: %d, from node: %d\n\t\t | TTL: %d |\n", 
         TOS_NODE_ID, Package->src, Package->TTL); // prints debug info about recieved packet
