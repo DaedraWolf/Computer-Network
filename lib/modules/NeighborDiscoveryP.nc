@@ -17,7 +17,18 @@ implementation{
     uint16_t sequenceNum = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
     uint8_t* neighborPayload = "";
     pack sendReq;
+    uint32_t neighbors[MAX_NEIGHBORS];
+    uint16_t neighborCount = 0;
 
+    /* NOT IMPLEMENTED
+    command uint32_t* NeighborDiscovery.getNeighbors() { 
+        return neighbors;
+    }
+
+    command uint16_t NeighborDiscovery.getNeighborCount() {
+        return neighborCount;
+    }
+    */
     // To-Do
     // function that deletes any disconnected neighbors from hashmap
 

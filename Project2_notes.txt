@@ -1,0 +1,30 @@
+Project 2: List to-do / Improve Project 1:
+1. Neighborhood Discovery:
+2. Link-state Flooding, modify to distribute link state info
+3. Shortest Path (Dijkstra's Algorithm) --> In order to do Routing Table
+4. Forwarding: Now direct forwarding based on routing table
+
+
+Known issues:
+- Flooding doesnt detect neighbor info to optimize packet transmission. Packages are broadcast rather than sent only to known neighbors
+Improve:
+1. Link-state flood alg.
+========================================
+
+Linking both modules of NeighborhoodDiscovery and Flooding:
+
+1. Flooding.nc - Updating neighbors
+
+command void updateNeighborList();
+
+2. FloodingP.nc - For using NeighborDiscovery
+
+module {
+
+uses interface neighborDiscovery;
+}
+
+uint32_t* neighbors = call NeighborDiscovery.getNeighbors();
+uint16_t numNeighbors = call NeighborDiscovery.getNeighborCount();
+
+^^--- Not used yet however,

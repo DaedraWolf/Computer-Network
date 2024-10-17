@@ -6,7 +6,10 @@ configuration FloodingC{
 
 implementation{
    components FloodingP;
+   components NeighborDiscoveryC; // Link components of FloodC and NeighborDiscoveryC
+
    Flooding = FloodingP.Flooding;
+   FloodingP.NeighborDiscovery -> NeighborDiscoveryC; // Node wiring cofig
 
    components new TimerMilliC() as sendTimer;
    FloodingP.sendTimer -> sendTimer;
