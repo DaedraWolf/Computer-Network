@@ -20,7 +20,7 @@ implementation{
     uint32_t neighbors[MAX_NEIGHBORS];
     uint16_t neighborCount = 0;
 
-    /* NOT IMPLEMENTED
+    // NOT IMPLEMENTED
     command uint32_t* NeighborDiscovery.getNeighbors() { 
         return neighbors;
     }
@@ -28,7 +28,7 @@ implementation{
     command uint16_t NeighborDiscovery.getNeighborCount() {
         return neighborCount;
     }
-    */
+
     // To-Do
     // function that deletes any disconnected neighbors from hashmap
 
