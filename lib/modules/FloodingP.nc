@@ -63,7 +63,7 @@ implementation{
             pack* package = (pack*)payload;
 
             if (package->protocol == PROTOCOL_FLOODING) {
-                dbg(FLOODING_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->seq);
+                dbg(FLOODING_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->src);
 
                 // checks if packet is a duplicate (from recievedSeqCount)
                 while (seqIndex < recievedSeqCount) {
