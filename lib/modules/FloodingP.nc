@@ -80,11 +80,11 @@ implementation{
                     recievedSeqCount = 0; 
                 }
 
-                // Check if the current node is the destination otherwise
-                if (package->dest == TOS_NODE_ID) {
-                    dbg(GENERAL_CHANNEL, "Packet received at destination: %d\n", TOS_NODE_ID, package->payload); // Packet reached
+                // Check if the current node is the destination otherwise ACK
+                if (package->dest == destination) {
+                    dbg(GENERAL_CHANNEL, "Packet received at destination: %d\n", destination); // Packet reached
                 } else {
-                    if (package->TTL >= 0) { // Check TTL expired or not
+                    if (package->TTL > 0) { // Check TTL expired or not
                         package->TTL--; 
                         dbg(FLOODING_CHANNEL, "Forwarding packet info from node: %d\n\t\t | TTL: %d |\n", TOS_NODE_ID, package->TTL);
                         call SimpleSend.send(*package, AM_BROADCAST_ADDR); // Forward to all neighbors
