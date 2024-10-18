@@ -104,7 +104,7 @@ implementation{
 
     void sendPack(){
         if(seqNumCount < MAX_SEQ){ // seq number doesn't exceed limit [20]
-            makePack(&packetInfo, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_FLOODING, seqNumCount, floodPayload, packetPayloadLen); 
+            makePack(&packetInfo, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_FLOODING, seqNumCount, floodPayload, packetPayloadLen); 
             call SimpleSend.send(packetInfo, AM_BROADCAST_ADDR); // Broadcast packet
             dbg(FLOODING_CHANNEL, "Package sent from: %d,\n\t (Sequence number: %d)\n", TOS_NODE_ID, seqNumCount);
             seqNumCount++;  // Increment seqNum for next packet
