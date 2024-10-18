@@ -11,6 +11,6 @@ interface CommandHandler{
    event void setAppClient();
    
    // New Additions
-   event void flood();
+   event void flood(uint16_t dest);
    event void discoverNeighbors();
 }

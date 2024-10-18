@@ -81,7 +81,7 @@ implementation{
             // New Additions
             case CMD_FLOOD:
                 dbg(COMMAND_CHANNEL, "Command Type: Flood\n");
-                signal CommandHandler.flood();
+                signal CommandHandler.flood(buff[0]);
                 break;
 
             case CMD_NEIGHBOR_DISCOVERY:

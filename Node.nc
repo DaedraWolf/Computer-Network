@@ -86,9 +86,9 @@ implementation{
    event void CommandHandler.setAppClient(){}
 
    // new additions
-   event void CommandHandler.flood(){
+   event void CommandHandler.flood(uint16_t dest){
       dbg(GENERAL_CHANNEL, "FLOODING EVENT \n");
-      call Flooding.flood();
+      call Flooding.flood(dest);
    }
 
    event void CommandHandler.discoverNeighbors(){

@@ -132,11 +132,11 @@ class TestSim:
         self.t.addChannel(channelName, out);
 
     # New Additions
-    def flood(self, destination):
-        self.sendCMD(self.CMD_FLOOD, destination, "flooding command");
+    def flood(self, source, dest):
+        self.sendCMD(self.CMD_FLOOD, source, "{0}{1}".format(chr(dest), "flooding command"));
 
-    def discoverNeighbors(self, destination):
-        self.sendCMD(self.CMD_NEIGHBOR_DISCOVERY, destination, "discovery command")
+    def discoverNeighbors(self, source):
+        self.sendCMD(self.CMD_NEIGHBOR_DISCOVERY, source, "discovery command")
     # end of new additions
 
 def main():

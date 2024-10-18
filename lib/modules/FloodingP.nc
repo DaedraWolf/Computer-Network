@@ -19,6 +19,7 @@ implementation{
     uint16_t seqNumCount = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
     uint8_t* floodPayload[MAX_PAYLOAD]; // buffer to store payload data
     uint8_t seqIndex;   // Iterate through seq number's
+    uint16_t destination;
 
     // Array to store a list of sequence #'s of recieved packets (duplication)
     uint16_t receivedSeq[MAX_SEQ]; // Store sequence numbers of received packets
@@ -41,7 +42,8 @@ implementation{
     }
 
     // Start flooding process
-    command void Flooding.flood(){
+    command void Flooding.flood(uint16_t dest){
+        destination = dest;
         dbg(GENERAL_CHANNEL, "Starting Flood\n");
         call sendTimer.startPeriodic(5000);
     }
