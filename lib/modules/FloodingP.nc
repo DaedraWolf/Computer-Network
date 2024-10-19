@@ -31,15 +31,15 @@ implementation{
     void sendPack();
 
     // NOT IMPLEMENTED YET (Look at NeighborDiscoveryP.nc)
-    command void Flooding.updateNeighborList() {
-        // This will be called periodically to update the neighbor list
-        uint32_t* neighbors = call NeighborDiscovery.getNeighbors();
-        uint16_t numNeighbors = call NeighborDiscovery.getNeighborCount();
+    // command void Flooding.updateNeighborList() {
+    //     // This will be called periodically to update the neighbor list
+    //     uint32_t* neighbors = call NeighborDiscovery.getNeighbors();
+    //     uint16_t numNeighbors = call NeighborDiscovery.getNeighborCount();
         
-        // Use these neighbors in your flooding algorithm
-        // For example, you might store them in a local array or use them directly
-        dbg(GENERAL_CHANNEL, "Updated neighbor list. Number of neighbors: %d\n", numNeighbors);
-    }
+    //     // Use these neighbors in your flooding algorithm
+    //     // For example, you might store them in a local array or use them directly
+    //     dbg(GENERAL_CHANNEL, "Updated neighbor list. Number of neighbors: %d\n", numNeighbors);
+    // }
 
     // Start flooding process
     command void Flooding.flood(uint16_t dest){
