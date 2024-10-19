@@ -28,3 +28,7 @@ uint32_t* neighbors = call NeighborDiscovery.getNeighbors();
 uint16_t numNeighbors = call NeighborDiscovery.getNeighborCount();
 
 ^^--- Not used yet however,
+
+Dijkstra's algorithm:
+N - {set of nodes in grapth [i,j]} // denotes (weight) 
+

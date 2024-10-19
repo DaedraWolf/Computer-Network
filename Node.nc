@@ -20,12 +20,12 @@ module Node{
    uses interface Receive;
 
    uses interface SimpleSend as Sender;
-
    uses interface CommandHandler;
 
    uses interface Flooding;
-
    uses interface NeighborDiscovery;
+
+   uses interface LinkState;
 }
 
 implementation{
