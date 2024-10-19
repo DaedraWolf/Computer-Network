@@ -16,7 +16,7 @@ module FloodingP{
 implementation{
     uint8_t packetPayloadLen = 0; // Len of payload (current)
     uint16_t ttl = MAX_TTL; // Time value for packets (before destroyed)
-    uint16_t seqNumCount = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
+    uint16_t seqNumCount = 1; // Tracks packets by giving each a unique #, increases whenever a packet is sent
     uint8_t* floodPayload[MAX_PAYLOAD]; // buffer to store payload data
     uint8_t seqIndex;   // Iterate through seq number's
     uint16_t destination;
@@ -80,9 +80,9 @@ implementation{
                     recievedSeqCount = 0; 
                 }
 
-                // Check if the current node is the destination otherwise ACK
-                if (package->dest == destination) {
-                    dbg(GENERAL_CHANNEL, "Packet received at destination: %d\n", destination); // Packet reached
+                // Check if package destination is the Node 
+                if (package->dest == TOS_NODE_ID) {
+                    dbg(FLOODING_CHANNEL, "\n>>> Packet received at destination: %d <<<\n", TOS_NODE_ID); // Packet reached
                 } else {
                     if (package->TTL > 0) { // Check TTL expired or not
                         package->TTL--; 
@@ -106,7 +106,7 @@ implementation{
         if(seqNumCount < MAX_SEQ){ // seq number doesn't exceed limit [20]
             makePack(&packetInfo, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_FLOODING, seqNumCount, floodPayload, packetPayloadLen); 
             call SimpleSend.send(packetInfo, AM_BROADCAST_ADDR); // Broadcast packet
-            dbg(FLOODING_CHANNEL, "Package sent from: %d,\n\t (Sequence number: %d)\n", TOS_NODE_ID, seqNumCount);
+            dbg(FLOODING_CHANNEL, " NEW Package sent from: %d,\n\t *****(Sequence number: %d)*****\n", TOS_NODE_ID, seqNumCount);
             seqNumCount++;  // Increment seqNum for next packet
         }
     }
