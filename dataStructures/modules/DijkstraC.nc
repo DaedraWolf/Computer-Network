@@ -9,7 +9,14 @@ implementation{
     uint16_t minDistance(uint16_t dist[], bool sptSet[]);
 
     command void initialize(uint16_t g[vertices][vertices]) {
-        graph = g;
+        uint16_t i;
+        uint16_t j;
+
+        for (i = 0; i < vertices; i++) {
+            for (j = 0; j < vertices; j++) {
+                graph[i][j] = g[i][j];
+            }
+        }
     }
 
     command uint16_t* getShortestPaths(uint16_t src) {
@@ -19,12 +26,14 @@ implementation{
         uint16_t dist[vertices];
         bool sptSet[vertices];
         
-        for (i = 0; i < V; i++)
-            dist[i] = INT_MAX, sptSet[i] = false;
+        for (i = 0; i < vertices; i++) {
+            dist[i] = UINT16_MAX;
+            sptSet[i] = false;
+        }
 
         dist[src] = 0;
 
-        for (count = 0; count < V - 1; count++) {
+        for (count = 0; count < vertices - 1; count++) {
             int u = minDistance(dist, sptSet);
             sptSet[u] = true;
             for (v = 0; v < V; v++)
@@ -39,7 +48,8 @@ implementation{
 
     uint16_t minDistance(uint16_t dist[], bool sptSet[]) {
         uint8_t v = 0;
-        int min = UINT16_MAX, min_index;
+        uint16_t min_index = 0;
+        uint16_t min = UINT16_MAX;
 
         for (v = 0; v < vertices; v++)
             if (sptSet[v] == false && dist[v] <= min)
