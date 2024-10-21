@@ -3,5 +3,7 @@ module LinkStateP{
 }
 
 implementation {
-
+    command void LinkState.dummy() {
+        uint8_t i = 1;
+    }
 }
