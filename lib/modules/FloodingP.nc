@@ -31,15 +31,15 @@ implementation{
     void sendPack();
 
     // NOT IMPLEMENTED YET (Look at NeighborDiscoveryP.nc)
-    // command void Flooding.updateNeighborList() {
-    //     // This will be called periodically to update the neighbor list
-    //     uint32_t* neighbors = call NeighborDiscovery.getNeighbors();
-    //     uint16_t numNeighbors = call NeighborDiscovery.getNeighborCount();
+    void updateNeighborList() {
+        // This will be called periodically to update the neighbor list
+        uint8_t* neighbors = call NeighborDiscovery.getNeighbors();
+        uint8_t numNeighbors = call NeighborDiscovery.getNeighborCount();
         
-    //     // Use these neighbors in your flooding algorithm
-    //     // For example, you might store them in a local array or use them directly
-    //     dbg(GENERAL_CHANNEL, "Updated neighbor list. Number of neighbors: %d\n", numNeighbors);
-    // }
+        // Use these neighbors in your flooding algorithm
+        // For example, you might store them in a local array or use them directly
+        dbg(GENERAL_CHANNEL, "Updated neighbor list. Number of neighbors: %d\n", numNeighbors);
+    }
 
     // Start flooding process
     command void Flooding.flood(uint16_t dest){
@@ -48,7 +48,7 @@ implementation{
         call sendTimer.startPeriodic(5000);
     }
 
-    // handle a recieved packet // NOT IMPLEMENTED YET
+    // handle a recieved packet
     command void Flooding.receivePack(pack *Package){
         dbg(FLOODING_CHANNEL, "Received packet at node: %d, from node: %d\n\t\t | TTL: %d |\n", 
         TOS_NODE_ID, Package->src, Package->TTL); // prints debug info about recieved packet
