@@ -1,6 +1,6 @@
 #include "../../includes/channels.h"
-generic module HashmapC(int vertices){
-   provides interface Hashmap<>;
+generic module Dijkstra(int vertices){
+   provides interface Dijkstra<>;
 }
 
 implementation{
