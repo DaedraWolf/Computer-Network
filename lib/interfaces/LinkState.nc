@@ -1,1 +1,3 @@
-interface LinkState{}
+interface LinkState{
+
+}

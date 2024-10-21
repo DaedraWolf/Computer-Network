@@ -1,4 +1,4 @@
-module LinkState{
+module LinkStateP{
     provides interface LinkState;
 }
 
