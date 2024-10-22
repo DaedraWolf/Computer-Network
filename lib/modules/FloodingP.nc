@@ -17,7 +17,7 @@ implementation{
     uint8_t packetPayloadLen = 0; // Len of payload (current)
     uint16_t ttl = MAX_TTL; // Time value for packets (before destroyed)
     uint16_t seqNumCount = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
-    uint8_t* floodPayload[MAX_PAYLOAD]; // buffer to store payload data
+    uint8_t floodPayload[MAX_PAYLOAD]; // buffer to store payload data
     uint8_t seqIndex;   // Iterate through seq number's
     uint16_t destination;
 
