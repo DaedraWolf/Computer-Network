@@ -7,12 +7,13 @@ module LinkStateP{
     uses interface SimpleSend;
     uses interface Receive as Receiver;
     uses interface Timer<TMilli> as LSATimer;
+    uses interface Dijkstra;
 }
 
 implementation {
     typedef struct {
-        uint8_t pathCost;
-        uint8_t neighborAddr;
+        uint8_t nextHop;
+        uint8_t cost;
     } NTuple; // Neighbor Tuple
 
     // Structure for link state data
@@ -28,6 +29,10 @@ implementation {
     uint16_t ttl = MAX_TTL;
     LSAPacket* linkStatePayload;
     pack sendReq;
+    NTuple routingTable[MAX_NEIGHBORS];
+
+    uint8_t* tempPayload = ""; // just for testing
+
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     void initializeLSAPackage();
@@ -42,14 +47,14 @@ implementation {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
             if (package->protocol == PROTOCOL_LINKSTATE) {
-                dbg("LSA Package Received at Node %d\n", TOS_NODE_ID);
+                dbg(ROUTING_CHANNEL, "LSA Package Received at Node %d\n", TOS_NODE_ID);
             }
         }
     }
 
     event void LSATimer.fired() {
-        makePack(sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_LINKSTATE, seqNum, linkStatePayload, packet);
-        call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
+        // makePack(sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_LINKSTATE, seqNum, tempPayload, packet);
+        // call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
         seqNum++;
     }
 
@@ -66,5 +71,16 @@ implementation {
         linkStatePayload->src = TOS_NODE_ID;
         linkStatePayload->seqNum = 0;
         linkStatePayload->neighborsNum = call NeighborDiscovery.getNeighborCount();
+    }
+
+    void loadRoutingTable() {
+        uint16_t i;
+        uint8_t* neighbors = call NeighborDiscovery.getNeighbors();
+        for (i = 0; i < MAX_NEIGHBORS; i++) {
+            if (neighbors[i] > 0) {
+                routingTable[i].nextHop = i;
+                routingTable[i].cost = 1;
+            }
+        }
     }
 }
