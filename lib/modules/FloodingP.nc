@@ -9,7 +9,7 @@ module FloodingP{
     uses interface SimpleSend;
     uses interface Timer<TMilli> as sendTimer;
     uses interface Receive as Receiver;
-    uses interface NeighborDiscovery;  // Connect interfaces with NeighborDiscovery
+    uses interface NeighborDiscovery;
     uses interface Hashmap<uint8_t> as NeighborMap;
 }
 
@@ -46,6 +46,7 @@ implementation{
         destination = dest;
         dbg(GENERAL_CHANNEL, "Starting Flood\n");
         call sendTimer.startPeriodic(5000);
+        call sendTimer.startPeriodic(10000);
     }
 
     // handle a recieved packet
@@ -99,6 +100,7 @@ implementation{
 
     event void sendTimer.fired(){
         sendPack(); // Send new packet
+        updateNeighborList();
 
     }
 

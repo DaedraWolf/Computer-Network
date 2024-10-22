@@ -1,3 +1,3 @@
 interface LinkState{
-    command void dummy();
+    command void advertise();
 }
