@@ -1,4 +1,4 @@
 interface Dijkstra{
-    command void initialize(uint16_t g[MAX_NEIGHBORS][MAX_NEIGHBORS]);
-    command uint16_t* getShortestPaths(uint16_t src);
+    command void make(uint16_t graph[MAX_NEIGHBORS][MAX_NEIGHBORS], uint16_t src);
+    command uint16_t getNextHop(uint16_t dest);
 }

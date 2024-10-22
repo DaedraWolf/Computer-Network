@@ -1,34 +1,32 @@
 #include "../../includes/channels.h"
-generic module DijkstraC(uint16_t vert){
+
+generic module DijkstraC(){
    provides interface Dijkstra;
 }
 
 implementation{
+    typedef struct {
+        uint16_t nextHop;
+        uint16_t cost;
+    } destTuple;
+
     uint16_t vertices = MAX_NEIGHBORS;
-    uint16_t graph[][];
+    destTuple destination[MAX_NEIGHBORS];
 
     uint16_t minDistance(uint16_t dist[], bool sptSet[]);
+    uint16_t getNextHop(uint16_t dest);
 
-    command void Dijkstra.initialize(uint16_t g[MAX_NEIGHBORS][MAX_NEIGHBORS]) {
-        uint16_t i;
-        uint16_t j;
-
-        for (i = 0; i < vertices; i++) {
-            for (j = 0; j < vertices; j++) {
-                graph[i][j] = g[i][j];
-            }
-        }
-    }
-
-    command uint16_t* Dijkstra.getShortestPaths(uint16_t src) {
+    command void Dijkstra.make(uint16_t graph[MAX_NEIGHBORS][MAX_NEIGHBORS], uint16_t src) {
         uint16_t i;
         uint16_t v;
         uint16_t count;
         uint16_t dist[vertices];
+        uint16_t prev[vertices];
         bool sptSet[vertices];
         
         for (i = 0; i < vertices; i++) {
             dist[i] = UINT16_MAX;
+            prev[i] = src;
             sptSet[i] = 0;
         }
 
@@ -40,11 +38,20 @@ implementation{
             for (v = 0; v < vertices; v++)
                 if (!sptSet[v] && graph[u][v]
                     && dist[u] != UINT16_MAX
-                    && dist[u] + graph[u][v] < dist[v])
-                    dist[v] = dist[u] + graph[u][v];
+                    && dist[u] + graph[u][v] < dist[v]) {
+                        dist[v] = dist[u] + graph[u][v];
+                        prev[v] = u;
+                    }
         }
+        
+        for (i = 0; i < vertices; i++) {
+            destination[i].nextHop = prev[i];
+            destination[i].cost = dist[i];
+        }
+    }
 
-        return dist;
+    command uint16_t Dijkstra.getNextHop(uint16_t dest) {
+        return destination[dest].nextHop;
     }
 
     uint16_t minDistance(uint16_t dist[], bool sptSet[]) {
