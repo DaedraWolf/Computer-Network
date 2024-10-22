@@ -81,20 +81,60 @@ implementation{
                     recievedSeqCount = 0; 
                 }
 
-                // Check if package destination is the Node 
+                // Case 1: if package destination is the Node 
                 if (package->dest == TOS_NODE_ID) {
                     dbg(FLOODING_CHANNEL, "\n>>> Packet received at destination: %d <<<\n", TOS_NODE_ID); // Packet reached
-                } else {
-                    if (package->TTL > 0) { // Check TTL expired or not
+
+                    // if flooding packet then keep flooding
+                    if (package->protocol == PROTOCOL_FLOODING && package->TTL > 0) {
+                        package->TTL--;
+                        dbg(FLOODING_CHANNEL, "Node %d recieved package info from %d; Package sent from: %d\n", TOS_NODE_ID, package->src, package->src);
+                        call SimpleSend.send(*package, AM_BROADCAST_ADDR);
+                    } 
+                        // Link state info processed & handled locally
+                    else if (package->protocol == PROTOCOL_LINKSTATE) {
+                        dbg(FLOODING_CHANNEL, "LINK STATE PACKET reached at node %d\n", TOS_NODE_ID);
+                    }
+                }
+
+                // Case 2: Broadcast Packet
+                else if (package->dest == AM_BROADCAST_ADDR) {
+                    dbg(FLOODING_CHANNEL, "Broadcasting packet from node: %d\n", TOS_NODE_ID);
+
+                    if(package->protocol == PROTOCOL_LINKSTATE) {
+                        dbg(FLOODING_CHANNEL, "Process LS Info to Node %d\n", TOS_NODE_ID);
+                        // process LS info
+                    }
+
+                    // Check TTL expired or not
+                    if (package->TTL > 0) { 
                         package->TTL--; 
                         dbg(FLOODING_CHANNEL, "Forwarding packet info from node: %d\n\t\t | TTL: %d |\n", TOS_NODE_ID, package->TTL);
                         call SimpleSend.send(*package, AM_BROADCAST_ADDR); // Forward to all neighbors
-                    } else {
+                    } 
+                    else {
+                        dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
+                    }
+                }
+                else {
+                    if (package->TTL > 0) {
+                        // Broadcasting until route table is complete
+                        uint8_t nextHop = AM_BROADCAST_ADDR; 
+
+                        // GET NEXT HOP FROM ROUTING TABLE
+                        // nextHop = getNextHop(package->dest);
+
+                        package->TTL--;
+                        dbg(FLOODING_CHANNEL, "Routing packet from node: %d to next hop\n\t\t | TTL: %d |\n", 
+                                TOS_NODE_ID, package->TTL);
+                            call SimpleSend.send(*package, nextHop); // Forward to next hop
+                    } 
+                    else {
                         dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
                     }
                 }
             }
-            return msg; 
+            return msg;
         }
     }
 
