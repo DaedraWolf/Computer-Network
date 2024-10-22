@@ -1,6 +1,8 @@
 #define MAX_SEQ 20
 #define MAX_TTL 25
 #define MAX_PAYLOAD 40
+#define MIN_STABLE_NEIGHBOR_TIME 5
+#define MAX_NEIGHBORS 20
 
 #include "../../includes/channels.h"
 
@@ -20,33 +22,54 @@ implementation{
     uint8_t floodPayload[MAX_PAYLOAD]; // buffer to store payload data
     uint8_t seqIndex;   // Iterate through seq number's
     uint16_t destination;
+    uint16_t neighborGraph[MAX_NEIGHBORS][MAX_NEIGHBORS];
 
     // Array to store a list of sequence #'s of recieved packets (duplication)
     uint16_t receivedSeq[MAX_SEQ]; // Store sequence numbers of received packets
     uint8_t recievedSeqCount = 0;  // # of seq num stored in array
+
+    uint8_t stabilityCounter = 0;
+    uint8_t neighbors[MAX_NEIGHBORS];
+    uint8_t numNeighbors;
+
 
     pack packetInfo;   // holds packet infomation
       
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     void sendPack();
 
-    // NOT IMPLEMENTED YET (Look at NeighborDiscoveryP.nc)
-    void updateNeighborList() {
-        // This will be called periodically to update the neighbor list
-        uint8_t* neighbors = call NeighborDiscovery.getNeighbors();
-        uint8_t numNeighbors = call NeighborDiscovery.getNeighborCount();
+    // WIP (Look at NeighborDiscoveryP.nc)
+    // void updateNeighborList() {
+    //     // Variable declarations must end with semicolons
+    //     uint8_t attempts = 0;
+    //     uint8_t maxAttempts = 5;  // Number of times to check for neighbors
         
-        // Use these neighbors in your flooding algorithm
-        // For example, you might store them in a local array or use them directly
-        dbg(GENERAL_CHANNEL, "Updated neighbor list. Number of neighbors: %d\n", numNeighbors);
-    }
+    //     // Run discovery until we find neighbors or max attempts reached
+    //     while(attempts < maxAttempts) {
+    //         call NeighborDiscovery.discoverNeighbors();
+    //         neighbors = call NeighborDiscovery.getNeighbors();
+    //         numNeighbors = call NeighborDiscovery.getNeighborCount();
+            
+    //         if(numNeighbors > 0) {
+    //             dbg(GENERAL_CHANNEL, "Updated neighbor list. Number of neighbors: %d\n", numNeighbors);
+    //             break;  // Exit loop if we found neighbors
+    //         }
+    //         attempts++;
+    //         if(attempts < maxAttempts) {
+    //             dbg(GENERAL_CHANNEL, "No neighbors found, attempt %d of %d\n", attempts, maxAttempts);
+    //         }
+    //     }
+    //     if(numNeighbors == 0) {
+    //         dbg(GENERAL_CHANNEL, "No neighbors found after %d attempts\n", maxAttempts);
+    //     }
+    // }
 
     // Start flooding process
     command void Flooding.flood(uint16_t dest){
         destination = dest;
         dbg(GENERAL_CHANNEL, "Starting Flood\n");
         call sendTimer.startPeriodic(5000);
-        call sendTimer.startPeriodic(10000);
+        call NeighborDiscovery.discoverNeighbors();
     }
 
     // handle a recieved packet
@@ -138,10 +161,68 @@ implementation{
         }
     }
 
-    event void sendTimer.fired(){
-        sendPack(); // Send new packet
-        updateNeighborList();
+    event void sendTimer.fired() {
+        uint8_t* updatedNeighbors = call NeighborDiscovery.getNeighbors();
+        uint8_t neighborIndex = 0;
+        uint8_t graphIndex = 0;
+        uint8_t i;
+        bool isStable = TRUE;
 
+        for (i = 0; i < MAX_NEIGHBORS; i++){
+            if (neighbors[i] != updatedNeighbors[i]) {
+                isStable = FALSE; // mismatch
+            }
+        }
+        if (neighbors == updatedNeighbors) {
+            stabilityCounter++;
+            dbg(FLOODING_CHANNEL, "Neighbor List stable for %d cycle(s)\n", stabilityCounter);
+        } else {
+            dbg(FLOODING_CHANNEL, "Neighbor List unstable. Retrieving updated neighbor list.\n");
+            // neighbors = updatedNeighbors;
+            for (i = 0; i < MAX_NEIGHBORS; i++) {
+                neighbors[i] = updatedNeighbors[i];
+            }
+            stabilityCounter = 0;
+
+            // Copy each neighbor to floodPayload
+            packetPayloadLen = call NeighborDiscovery.getNeighborCount();
+            while(neighborIndex < MAX_NEIGHBORS) {
+                floodPayload[neighborIndex] = neighbors[neighborIndex];
+                neighborGraph[TOS_NODE_ID][neighborIndex] = neighbors[neighborIndex];
+                dbg(FLOODING_CHANNEL, "%d -> \n", neighbors[neighborIndex]);
+                neighborIndex++;
+                // dbg(FLOODING_CHANNEL, "debug check\n");
+            }
+            dbg(FLOODING_CHANNEL, "Copied Neighbor to floodPayload\n");
+        }
+        
+        if (stabilityCounter >= MIN_STABLE_NEIGHBOR_TIME) {
+            neighborIndex = 0;  // Reset index for printing
+            dbg(FLOODING_CHANNEL, "PRINTING LIST OF ND: \n");
+            while (neighborIndex < MAX_NEIGHBORS) {
+                dbg(FLOODING_CHANNEL, "%d -> \n", neighborGraph[TOS_NODE_ID][neighborIndex]);
+                neighborIndex++;
+            }
+
+            neighborIndex = 0;
+            dbg(FLOODING_CHANNEL, "Node %d sending flood with payload: [ ", TOS_NODE_ID);
+            while(neighborIndex < packetPayloadLen) {
+                dbg(FLOODING_CHANNEL, "%d ", floodPayload[neighborIndex]);
+                neighborIndex++;
+            }
+            dbg(FLOODING_CHANNEL, "]\n");
+            
+            sendPack();
+
+            // reset floodPayload
+            neighborIndex = 0;
+            while(neighborIndex < MAX_PAYLOAD) {
+                floodPayload[neighborIndex] = 0;
+                neighborIndex++;
+            }
+            dbg(FLOODING_CHANNEL, "DUMPING flood payload AFTER\n");
+            packetPayloadLen = 0;
+        }
     }
 
     void sendPack(){
