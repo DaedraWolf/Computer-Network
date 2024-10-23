@@ -1,4 +1,4 @@
-#define MAX_SEQ 20
+#define MAX_SEQ 25
 #define MAX_TTL 25
 #define MAX_PAYLOAD 40
 #define MIN_STABLE_NEIGHBOR_TIME 5
@@ -82,31 +82,47 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         // checks len of packet size
         if (len == sizeof(pack)) {
-
-            // payload is inow in a 'pack' struct
+            // payload is now in a 'pack' struct
             pack* package = (pack*)payload;
 
             if (package->protocol == PROTOCOL_FLOODING) {
+                
+                uint8_t i;
+                bool isDuplicate = FALSE;
+                
                 dbg(FLOODING_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->src);
 
                 // checks if packet is a duplicate (from recievedSeqCount)
-                while (seqIndex < recievedSeqCount) {
-                    if (receivedSeq[seqIndex] == package->seq) { // Checks for duplicates
+                 for(i = 0; i < MAX_SEQ; i++) {
+                    if(receivedSeq[i] == package->seq) {
+                        isDuplicate = TRUE;
                         dbg(FLOODING_CHANNEL, "Dropping.. Duplicate packet\n");
-                        return msg; 
+                        return msg;
                     }
-                    seqIndex++;
                 }
 
                 // Store new sequence number in the recieved sequence array 
-                receivedSeq[recievedSeqCount++] = package->seq;
-                if (recievedSeqCount >= MAX_SEQ) {
-                    recievedSeqCount = 0; 
-                }
+                receivedSeq[seqNumCount % MAX_SEQ] = package->seq;
+                seqNumCount++;
+
+                // Debug destination check
+                dbg(FLOODING_CHANNEL, "Checking destination - Packet dest: %d, Current node: %d\n", 
+                    package->dest, TOS_NODE_ID);
 
                 // Case 1: if package destination is the Node 
                 if (package->dest == TOS_NODE_ID) {
+                    uint8_t i;
                     dbg(FLOODING_CHANNEL, "\n>>> Packet received at destination: %d <<<\n", TOS_NODE_ID); // Packet reached
+
+                    dbg(FLOODING_CHANNEL, "Node %d Stores List of Neighbors from floodPayload: ", TOS_NODE_ID);
+                    for (i = 0; i < MAX_PAYLOAD; i++){
+                        if (package->payload[i] == 0)
+                        break;
+
+                        // Store Neighbor Graph 
+                        neighborGraph[package->src][i] = package->payload[i];
+                        dbg(FLOODING_CHANNEL, "%d", package->payload[i]);
+                    }
 
                     // if flooding packet then keep flooding
                     if (package->protocol == PROTOCOL_FLOODING && package->TTL > 0) {
@@ -118,44 +134,47 @@ implementation{
                     else if (package->protocol == PROTOCOL_LINKSTATE) {
                         dbg(FLOODING_CHANNEL, "LINK STATE PACKET reached at node %d\n", TOS_NODE_ID);
                     }
+                } else {
+                    // makePack(&packetInfo, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_FLOODING, seqNumCount, floodPayload, packetPayloadLen); 
+                    call SimpleSend.send(*package, AM_BROADCAST_ADDR);
                 }
 
                 // Case 2: Broadcast Packet
-                else if (package->dest == AM_BROADCAST_ADDR) {
-                    dbg(FLOODING_CHANNEL, "Broadcasting packet from node: %d\n", TOS_NODE_ID);
+        //         else if (package->dest == AM_BROADCAST_ADDR) {
+        //             dbg(FLOODING_CHANNEL, "Broadcasting packet from node: %d\n", TOS_NODE_ID);
 
-                    if(package->protocol == PROTOCOL_LINKSTATE) {
-                        dbg(FLOODING_CHANNEL, "Process LS Info to Node %d\n", TOS_NODE_ID);
-                        // process LS info
-                    }
+        //             if(package->protocol == PROTOCOL_LINKSTATE) {
+        //                 dbg(FLOODING_CHANNEL, "Process LS Info to Node %d\n", TOS_NODE_ID);
+        //                 // process LS info
+        //             }
 
-                    // Check TTL expired or not
-                    if (package->TTL > 0) { 
-                        package->TTL--; 
-                        dbg(FLOODING_CHANNEL, "Forwarding packet info from node: %d\n\t\t | TTL: %d |\n", TOS_NODE_ID, package->TTL);
-                        call SimpleSend.send(*package, AM_BROADCAST_ADDR); // Forward to all neighbors
-                    } 
-                    else {
-                        dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
-                    }
-                }
-                else {
-                    if (package->TTL > 0) {
-                        // Broadcasting until route table is complete
-                        uint8_t nextHop = AM_BROADCAST_ADDR; 
+        //             // Check TTL expired or not
+        //             if (package->TTL > 0) { 
+        //                 package->TTL--; 
+        //                 dbg(FLOODING_CHANNEL, "Forwarding packet info from node: %d\n\t\t | TTL: %d |\n", TOS_NODE_ID, package->TTL);
+        //                 call SimpleSend.send(*package, AM_BROADCAST_ADDR); // Forward to all neighbors
+        //             } 
+        //             else {
+        //                 dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
+        //             }
+        //         }
+        //         else {
+        //             if (package->TTL > 0) {
+        //                 // Broadcasting until route table is complete
+        //                 uint8_t nextHop = AM_BROADCAST_ADDR; 
 
-                        // GET NEXT HOP FROM ROUTING TABLE
-                        // nextHop = getNextHop(package->dest);
+        //                 // GET NEXT HOP FROM ROUTING TABLE
+        //                 // nextHop = getNextHop(package->dest);
 
-                        package->TTL--;
-                        dbg(FLOODING_CHANNEL, "Routing packet from node: %d to next hop\n\t\t | TTL: %d |\n", 
-                                TOS_NODE_ID, package->TTL);
-                            call SimpleSend.send(*package, nextHop); // Forward to next hop
-                    } 
-                    else {
-                        dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
-                    }
-                }
+        //                 package->TTL--;
+        //                 dbg(FLOODING_CHANNEL, "Routing packet from node: %d to next hop\n\t\t | TTL: %d |\n", 
+        //                         TOS_NODE_ID, package->TTL);
+        //                     call SimpleSend.send(*package, nextHop); // Forward to next hop
+        //             } 
+        //             else {
+        //                 dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
+        //             }
+        //         }
             }
             return msg;
         }
@@ -173,7 +192,7 @@ implementation{
         // debug check neighbor list
         dbg(FLOODING_CHANNEL, "Updated Neighbor List: ");
         for (i = 0; i < MAX_NEIGHBORS; i++) {
-            dbg(FLOODING_CHANNEL, "%d ", neighbors[i]);
+            dbg(FLOODING_CHANNEL, "%d\n ", neighbors[i]);
         }
         dbg(FLOODING_CHANNEL, "\n");
 
@@ -182,7 +201,7 @@ implementation{
                 isStable = FALSE; // mismatch
             }
         }
-        if (neighbors == updatedNeighbors) {
+        if (isStable) {
             stabilityCounter++;
             dbg(FLOODING_CHANNEL, "Neighbor List stable for %d cycle(s)\n", stabilityCounter);
         } else {
