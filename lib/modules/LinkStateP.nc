@@ -137,7 +137,7 @@ implementation {
             if (neighborTable[i] > 0)
                 neighborGraph[src][i] = 1;
             else
-                neighborGraph[src][i] = UINT8_MAX;
+                neighborGraph[src][i] = 0;
         }
     }
 
