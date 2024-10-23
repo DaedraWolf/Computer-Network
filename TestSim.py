@@ -15,6 +15,7 @@ class TestSim:
     CMD_ROUTE_DUMP=3
     CMD_FLOOD=7
     CMD_NEIGHBOR_DISCOVERY=8
+    CMD_LINKSTATE_AD=10
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -137,6 +138,9 @@ class TestSim:
 
     def discoverNeighbors(self, source):
         self.sendCMD(self.CMD_NEIGHBOR_DISCOVERY, source, "discovery command")
+
+    def linkStateAdvertise(self, source):
+        self.sendCMD(self.CMD_LINKSTATE_AD, source, "linkstate command");
     # end of new additions
 
 def main():

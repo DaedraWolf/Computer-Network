@@ -21,6 +21,7 @@ enum{
 	// New additions
 	CMD_FLOOD=7,
 	CMD_NEIGHBOR_DISCOVERY=8,
+	CMD_LINKSTATE_AD=10,
 	// end of new additions
 
 	CMD_ERROR=9

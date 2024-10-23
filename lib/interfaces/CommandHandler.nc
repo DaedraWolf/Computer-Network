@@ -13,4 +13,5 @@ interface CommandHandler{
    // New Additions
    event void flood(uint16_t dest);
    event void discoverNeighbors();
+   event void linkStateAdvertise();
 }

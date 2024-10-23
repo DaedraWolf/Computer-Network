@@ -88,6 +88,11 @@ implementation{
                 dbg(COMMAND_CHANNEL, "Command Type: Neighbor Discovery\n");
                 signal CommandHandler.discoverNeighbors();
                 break;
+
+            case CMD_LINKSTATE_AD:
+                dbg(COMMAND_CHANNEL, "Command Type: LinkState Advertise\n");
+                signal CommandHandler.linkStateAdvertise();
+                break;
             
             // End of new additions
 
