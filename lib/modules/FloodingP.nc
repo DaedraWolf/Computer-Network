@@ -22,11 +22,11 @@ implementation{
     uint8_t floodPayload[MAX_PAYLOAD]; // buffer to store payload data
     uint8_t seqIndex;   // Iterate through seq number's
     uint16_t destination;
-    uint16_t neighborGraph[MAX_NEIGHBORS][MAX_NEIGHBORS];
+    uint8_t neighborGraph[MAX_NEIGHBORS][MAX_NEIGHBORS];
 
     // Array to store a list of sequence #'s of recieved packets (duplication)
     uint16_t receivedSeq[MAX_SEQ]; // Store sequence numbers of received packets
-    uint8_t recievedSeqCount = 0;  // # of seq num stored in array
+    // uint8_t recievedSeqCount = 0;  // # of seq num stored in array
 
     uint8_t stabilityCounter = 0;
     uint8_t neighbors[MAX_NEIGHBORS];
@@ -93,17 +93,17 @@ implementation{
                 dbg(FLOODING_CHANNEL, "Node %d received package info from %d; SEQUENCE NUMBER: %d\n", TOS_NODE_ID, package->src, package->src);
 
                 // checks if packet is a duplicate (from recievedSeqCount)
-                 for(i = 0; i < MAX_SEQ; i++) {
-                    if(receivedSeq[i] == package->seq) {
-                        isDuplicate = TRUE;
-                        dbg(FLOODING_CHANNEL, "Dropping.. Duplicate packet\n");
-                        return msg;
-                    }
-                }
+                //  for(i = 0; i < MAX_SEQ; i++) {
+                //     if(receivedSeq[i] == package->seq) {
+                //         isDuplicate = TRUE;
+                //         dbg(FLOODING_CHANNEL, "Dropping.. Duplicate packet\n");
+                //         return msg;
+                //     }
+                // }
 
                 // Store new sequence number in the recieved sequence array 
-                receivedSeq[seqNumCount % MAX_SEQ] = package->seq;
-                seqNumCount++;
+                // receivedSeq[seqNumCount % MAX_SEQ] = package->seq;
+                // seqNumCount++;
 
                 // Debug destination check
                 dbg(FLOODING_CHANNEL, "Checking destination - Packet dest: %d, Current node: %d\n", 
@@ -111,18 +111,27 @@ implementation{
 
                 // Case 1: if package destination is the Node 
                 if (package->dest == TOS_NODE_ID) {
-                    uint8_t i;
+                    // uint8_t i;
+                    uint8_t j;
+                    uint8_t* translatedPayload = (uint8_t*)package->payload;
+
                     dbg(FLOODING_CHANNEL, "\n>>> Packet received at destination: %d <<<\n", TOS_NODE_ID); // Packet reached
 
                     dbg(FLOODING_CHANNEL, "Node %d Stores List of Neighbors from floodPayload: ", TOS_NODE_ID);
-                    for (i = 0; i < MAX_PAYLOAD; i++){
-                        if (package->payload[i] == 0)
-                        break;
-
+                    for (i = 0; i < MAX_NEIGHBORS; i++){
                         // Store Neighbor Graph 
-                        neighborGraph[package->src][i] = package->payload[i];
-                        dbg(FLOODING_CHANNEL, "%d", package->payload[i]);
+                        neighborGraph[package->src][i] = translatedPayload[i];
+                        dbg(FLOODING_CHANNEL, "%d\n", translatedPayload[i]);
                     }
+
+                    dbg(FLOODING_CHANNEL, "Neighbor Graph: \n");
+                    for (i = 0; i < MAX_NEIGHBORS; i++) {
+                        dbg(FLOODING_CHANNEL, "Node %d Neighbors: \n", i);
+                        for (j = 0; j < MAX_NEIGHBORS; j++) {
+                            dbg(FLOODING_CHANNEL, "%d\n", neighborGraph[i][j]);
+                        }
+                        dbg(FLOODING_CHANNEL, "\n");
+}
 
                     // if flooding packet then keep flooding
                     if (package->protocol == PROTOCOL_FLOODING && package->TTL > 0) {
@@ -130,10 +139,6 @@ implementation{
                         dbg(FLOODING_CHANNEL, "Node %d recieved package info from %d; Package sent from: %d\n", TOS_NODE_ID, package->src, package->src);
                         call SimpleSend.send(*package, AM_BROADCAST_ADDR);
                     } 
-                        // Link state info processed & handled locally
-                    else if (package->protocol == PROTOCOL_LINKSTATE) {
-                        dbg(FLOODING_CHANNEL, "LINK STATE PACKET reached at node %d\n", TOS_NODE_ID);
-                    }
                 } else {
                     // makePack(&packetInfo, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_FLOODING, seqNumCount, floodPayload, packetPayloadLen); 
                     call SimpleSend.send(*package, AM_BROADCAST_ADDR);
@@ -158,6 +163,7 @@ implementation{
         //                 dbg(FLOODING_CHANNEL, "TTL expired... DROP PACKET\n");
         //             }
         //         }
+        //      // Case 3: Next hop
         //         else {
         //             if (package->TTL > 0) {
         //                 // Broadcasting until route table is complete
