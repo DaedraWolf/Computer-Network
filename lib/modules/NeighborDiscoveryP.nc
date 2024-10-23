@@ -15,6 +15,7 @@ implementation{
     uint16_t ttl = MAX_TTL;
     uint16_t sequenceNum = 0; // Tracks packets by giving each a unique #, increases whenever a packet is sent
     uint8_t* neighborPayload = "";
+    uint8_t neighbors[MAX_NEIGHBORS];
     pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
@@ -39,7 +40,7 @@ implementation{
     // any node with a connection strength of 0 is not a neighbor (or whatever % you choose)
     command uint8_t* NeighborDiscovery.getNeighbors() { 
         uint16_t i;
-        uint8_t neighbors[MAX_NEIGHBORS];
+        
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             neighbors[i] = getConnectionStrength(i);
         }

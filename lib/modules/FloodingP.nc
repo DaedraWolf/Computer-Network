@@ -163,10 +163,19 @@ implementation{
 
     event void sendTimer.fired() {
         uint8_t* updatedNeighbors = call NeighborDiscovery.getNeighbors();
+        // uint8_t updatedNeighbors[MAX_NEIGHBORS] = {1, 2, 3, 4, 0, 0, 0, 0}; // Test
+
         uint8_t neighborIndex = 0;
         uint8_t graphIndex = 0;
         uint8_t i;
         bool isStable = TRUE;
+
+        // debug check neighbor list
+        dbg(FLOODING_CHANNEL, "Updated Neighbor List: ");
+        for (i = 0; i < MAX_NEIGHBORS; i++) {
+            dbg(FLOODING_CHANNEL, "%d ", neighbors[i]);
+        }
+        dbg(FLOODING_CHANNEL, "\n");
 
         for (i = 0; i < MAX_NEIGHBORS; i++){
             if (neighbors[i] != updatedNeighbors[i]) {
