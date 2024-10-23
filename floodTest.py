@@ -27,9 +27,9 @@ def main():
     s.runTime(1);
 
     # After FLOODING EVENT, s.flood(node), s.runtime(reruns clock)
-    s.flood(3, 5);
+    s.flood(3, 4);
     s.runTime(1);
-    s.flood(9, 2);
+    s.flood(4, 3);
     s.runTime(20);
 
 if __name__ == '__main__':
