@@ -12,16 +12,16 @@ module LinkStateP{
 
 implementation {
     typedef struct {
-        uint8_t nextHop;
-        uint8_t cost;
-    } NTuple; // Neighbor Tuple
-
+        uint16_t nextHop;
+        uint16_t cost;
+    } destTuple;
+    
     // Structure for link state data
     typedef struct {
         uint8_t src;
         uint8_t seqNum;
         uint8_t neighborsNum;
-        NTuple neighbors[MAX_NEIGHBORS];
+        destTuple neighbors[MAX_NEIGHBORS];
     } LSAPacket; // Link-State advertise packet
 
     uint8_t seqNum = 0;
@@ -29,7 +29,8 @@ implementation {
     uint16_t ttl = MAX_TTL;
     LSAPacket* linkStatePayload;
     pack sendReq;
-    NTuple routingTable[MAX_NEIGHBORS];
+
+    uint16_t neighborGraph[][];
 
     uint8_t* tempPayload = ""; // just for testing
 
@@ -73,14 +74,39 @@ implementation {
         linkStatePayload->neighborsNum = call NeighborDiscovery.getNeighborCount();
     }
 
-    void loadRoutingTable() {
+    // void initializeNeighborGraph() {
+    //     uint16_t i;
+    //     uint16_t j;
+
+    //     for (i = 0; i < MAX_NEIGHBORS; i++) {
+    //         for (j = 0; j < MAX_NEIGHBORS; j++) {
+    //             routingGraph[i][j] = UINT16_MAX;
+    //         }
+    //     }
+    // }
+
+    // void updateRoutingTable(uint16_t dist[], uint16_t src) {
+    //     uint16_t i;
+    //     for (i = 0; i < MAX_NEIGHBORS; i++) {
+    //         if (i != src && routingTable[i].cost < dist[i] + routing[src].cost) {
+    //             routingTable[i].nextHop = src;
+    //             routingTable[i].cost = dist[i] + routing[src].cost;
+    //         }
+    //     }
+    // }
+
+    void loadDistanceTable() {
+        call Dijkstra.make(neighborGraph, TOS_NODE_ID);
+    }
+
+    void updateNeighborGraph(uint16_t neighborTable[], uint16_t src) {
         uint16_t i;
-        uint8_t* neighbors = call NeighborDiscovery.getNeighbors();
+
         for (i = 0; i < MAX_NEIGHBORS; i++) {
-            if (neighbors[i] > 0) {
-                routingTable[i].nextHop = i;
-                routingTable[i].cost = 1;
-            }
+            if (neighborTable[i] > 0)
+                neighborGraph[src][i] = 1;
+            else
+                neighborGraph[src][i] = UINT16_MAX;
         }
     }
 }

@@ -21,6 +21,6 @@ implementation{
     components new AMReceiverC(AM_PACK) as Receiver;
 	LinkStateP.Receiver -> Receiver;
 
-    components new DijkstraC(MAX_NEIGHBORS);
+    components new DijkstraC();
     LinkStateP.Dijkstra -> DijkstraC;
 }
