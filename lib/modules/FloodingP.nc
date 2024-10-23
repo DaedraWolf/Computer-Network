@@ -35,6 +35,7 @@ implementation{
     pack packetInfo;   // holds packet infomation
       
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
+    void sendReply(uint16_t dest, uint16_t seq);
     void sendPack();
 
     // Start flooding process
@@ -94,6 +95,8 @@ implementation{
                     if (package->dest == 0)
                         call SimpleSend.send(*package, AM_BROADCAST_ADDR);
 
+                    sendReply(package->src, package->seq);
+
                     // if flooding packet then keep flooding
                     // if (package->protocol == PROTOCOL_FLOODING && package->TTL > 0) {
                     //     package->TTL--;
@@ -103,7 +106,29 @@ implementation{
                 } else {
                     call SimpleSend.send(*package, AM_BROADCAST_ADDR);
                 }
+            }
+            if (package->protocol == PROTOCOL_FLOODINGREPLY) {
+                if (package->dest == TOS_NODE_ID) {
+                    uint8_t i;
+                    uint8_t j;
 
+                    for (i = 0; i < MAX_NEIGHBORS; i++){
+                        // Store Neighbor Graph 
+                        neighborGraph[package->src][i] = package->payload[i];
+                        dbg(FLOODING_CHANNEL, "%d\n", package->payload[i]);
+                    }
+
+                    dbg(FLOODING_CHANNEL, "Flooding Reply Received; Printing Neighbor Graph: \n");
+                    for (i = 0; i < MAX_NEIGHBORS; i++) {
+                        dbg(FLOODING_CHANNEL, "Node %d Neighbors: \n", i);
+                        for (j = 0; j < MAX_NEIGHBORS; j++) {
+                            dbg(FLOODING_CHANNEL, "%d\n", neighborGraph[i][j]);
+                        }
+                        dbg(FLOODING_CHANNEL, "\n");
+                    }
+                } else {
+                    call SimpleSend.send(*package, AM_BROADCAST_ADDR);
+                }
             }
             return msg;
         }
@@ -185,6 +210,12 @@ implementation{
             dbg(FLOODING_CHANNEL, " NEW Package sent from: %d,\n\t *****(Sequence number: %d)*****\n", TOS_NODE_ID, seqNumCount);
             seqNumCount++;  // Increment seqNum for next packet
         }
+    }
+
+    void sendReply(uint16_t dest, uint16_t seq){
+        dbg(FLOODING_CHANNEL, "Sending flooding reply to %d\n", dest);
+        makePack(&packetInfo, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_FLOODINGREPLY, seq, floodPayload, packetPayloadLen); 
+        call SimpleSend.send(packetInfo, AM_BROADCAST_ADDR);
     }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
