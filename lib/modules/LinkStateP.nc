@@ -1,4 +1,4 @@
-#define LSA_REFRESH_INTERVAL 60000
+#define LSA_REFRESH_INTERVAL 10000
 
 module LinkStateP{
     provides interface LinkState;
@@ -106,7 +106,7 @@ implementation {
             if (neighborTable[i] > 0)
                 neighborGraph[src][i] = 1;
             else
-                neighborGraph[src][i] = UINT16_MAX;
+                neighborGraph[src][i] = 0;
         }
     }
 }
