@@ -66,10 +66,9 @@ implementation {
         uint8_t* tempGraph = call Flooding.getNeighborGraph();
         dbg(ROUTING_CHANNEL, "Printing Neighbor Graph\n");
         for (i = 0; i < MAX_NEIGHBORS; i++) {
-            dbg(ROUTING_CHANNEL, "Neighbors of %d\n", i);
             for (j = 0; j < MAX_NEIGHBORS; j++) {
                 neighborGraph[i][j] = tempGraph[i * MAX_NEIGHBORS + j];
-                dbg(ROUTING_CHANNEL, "%d: %d\n", j, neighborGraph[i][j]);
+                dbg(ROUTING_CHANNEL, "Neighbors[%d][%d] = %d\n", i, j, tempGraph[i * MAX_NEIGHBORS + j]);
             }
         }
         

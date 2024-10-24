@@ -33,7 +33,7 @@ def main():
             s.runTime(1);
     s.runTime(10);
     s.linkStateAdvertise(3);
-    s.runTime(50);
+    s.runTime(100);
 
 if __name__ == '__main__':
     main()

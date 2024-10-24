@@ -40,7 +40,10 @@ implementation{
                     && dist[u] != UINT16_MAX
                     && dist[u] + graph[u][v] < dist[v]) {
                         dist[v] = dist[u] + graph[u][v];
-                        prev[v] = u;
+                        if (prev[u] != src)
+                            prev[v] = prev[u];
+                        else
+                            prev[v] = v;
                     }
         }
         
