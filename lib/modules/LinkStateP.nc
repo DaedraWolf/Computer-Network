@@ -47,6 +47,7 @@ implementation {
         call LSATimer.startPeriodic(LSA_REFRESH_INTERVAL);
     }
 
+    // handles recieved LSA packets
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
@@ -56,6 +57,7 @@ implementation {
         }
     }
 
+    // periodic timer event for LSA updates
     event void LSATimer.fired() {
         // makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_LINKSTATE, seqNum, linkStatePayload, payloadLength);
         // call SimpleSend.send(sendReq, AM_BROADCAST_ADDR);
@@ -63,8 +65,11 @@ implementation {
         uint8_t i;
         uint8_t j;
 
+        // tempGraph represents 1D array that represents connectivity between nodes
         uint8_t* tempGraph = call Flooding.getNeighborGraph();
         dbg(ROUTING_CHANNEL, "Printing Neighbor Graph\n");
+
+        // check if there is enough topology info is available
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             for (j = 0; j < MAX_NEIGHBORS; j++) {
                 neighborGraph[i][j] = tempGraph[i * MAX_NEIGHBORS + j];
@@ -72,6 +77,7 @@ implementation {
             }
         }
         
+        // Check if it is available
         if (isNeighborGraphFilled()) {
             dbg(ROUTING_CHANNEL, "Neighbor graph filled; Creating Routing Table\n");
             loadDistanceTable();
@@ -118,9 +124,11 @@ implementation {
     //     }
     // }
 
+    // calculates routing table using dijkstra
     void loadDistanceTable() {
         uint8_t i;
 
+        // run dijkstra algorithm on neighbor graph
         call Dijkstra.make(neighborGraph, TOS_NODE_ID);
 
         dbg(ROUTING_CHANNEL, "Printing routing table\n");
@@ -129,22 +137,25 @@ implementation {
         }
     }
 
+    // update neighbor ghraph with new info
     void updateNeighborGraph(uint16_t neighborTable[], uint16_t src) {
         uint16_t i;
 
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             if (neighborTable[i] > 0)
-                neighborGraph[src][i] = 1;
+                neighborGraph[src][i] = 1; // connection established
             else
-                neighborGraph[src][i] = 0;
+                neighborGraph[src][i] = 0; // No connection
         }
     }
 
+    // checks if enough topology info is available
     bool isNeighborGraphFilled() {
         uint8_t i;
         uint8_t j;
         uint8_t receivedCount = 0;
 
+        // counts nodes with at least one neighbor
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             for (j = 0; j < MAX_NEIGHBORS; j++) {
                 if (neighborGraph[i][j] != 0) {
@@ -153,7 +164,7 @@ implementation {
                 }
             }
         }
-
+        // returns true if at least 5 nodes have neighbors
         return (receivedCount >= 5);
     }
 }

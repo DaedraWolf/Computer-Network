@@ -44,8 +44,8 @@ implementation{
     command void Flooding.flood(uint16_t dest){
         destination = dest;
         dbg(GENERAL_CHANNEL, "Starting Flood\n");
-        call sendTimer.startPeriodic(5000);
-        call NeighborDiscovery.discoverNeighbors();
+        call sendTimer.startPeriodic(5000); // periodic timer for flooding
+        call NeighborDiscovery.discoverNeighbors(); // start ND
     }
 
     // handle a recieved packet
@@ -54,26 +54,29 @@ implementation{
         TOS_NODE_ID, Package->src, Package->TTL); // prints debug info about recieved packet
     }
 
+    // returns current network topology graph
     command uint8_t* Flooding.getNeighborGraph() {
         return (uint8_t*) neighborGraph;
     }
 
-    // event starts when packet is recieved
+    // main packet recieves
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         // checks len of packet size
         if (len == sizeof(pack)) {
             // payload is now in a 'pack' struct
             pack* package = (pack*)payload;
 
-
+            // drop self-sent packets
             if (package->src == TOS_NODE_ID) {
                 dbg(FLOODING_CHANNEL, "Dropping package from self\n");
                 return msg;
             }
 
+            // handle flood packets
             if (package->protocol == PROTOCOL_FLOODING) {
                 uint8_t i;
 
+                // detecting duplicate packets
                 if (package->seq <= receivedSeq[package->src]) {
                     dbg(FLOODING_CHANNEL, "Dropping duplicate package\n");
                     return msg;
@@ -84,13 +87,17 @@ implementation{
 
                 dbg(FLOODING_CHANNEL, "Checking destination - Packet dest: %d, Current node: %d\n", package->dest, TOS_NODE_ID);
 
+                // proccess packet if reaches node destination or broadcast
                 if (package->dest == TOS_NODE_ID || package->dest == 0) {
                     uint8_t j;
 
                     dbg(FLOODING_CHANNEL, "\n>>> Packet received at destination: %d <<<\n", TOS_NODE_ID); // Packet reached
 
                     dbg(FLOODING_CHANNEL, "Node %d Stores List of Neighbors from floodPayload:\n", TOS_NODE_ID);
+                    
+                    // Update neighbor graph with recieved payload info
                     for (i = 0; i < MAX_NEIGHBORS; i++){
+
                         // Store Neighbor Graph 
                         neighborGraph[package->src][i] = package->payload[i];
                         dbg(FLOODING_CHANNEL, "%d\n", package->payload[i]);
@@ -105,6 +112,7 @@ implementation{
                     //     dbg(FLOODING_CHANNEL, "\n");
                     // }
 
+                    // forward broadcast packets
                     if (package->dest == 0)
                         call SimpleSend.send(*package, AM_BROADCAST_ADDR);
 
@@ -117,19 +125,27 @@ implementation{
                     //     call SimpleSend.send(*package, AM_BROADCAST_ADDR);
                     // } 
                 } else {
+                    
+                    // forwards packet if not destination
                     call SimpleSend.send(*package, AM_BROADCAST_ADDR);
                 }
+
+                // Handle flood reply packets
             } else if (package->protocol == PROTOCOL_FLOODINGREPLY) {
+
+                // duplicate reply detection
                 if (package->seq <= receivedReplySeq[package->src]) {
                     dbg(FLOODING_CHANNEL, "Dropping duplicate reply package\n");
                     return msg;
                 }
                 receivedReplySeq[package->src] = package->seq;
 
+                // process reply for destination node
                 if (package->dest == TOS_NODE_ID) {
                     uint8_t i;
                     uint8_t j;
 
+                    // update neighbor graph with reply info
                     for (i = 0; i < MAX_NEIGHBORS; i++){
                         // Store Neighbor Graph 
                         neighborGraph[package->src][i] = package->payload[i];
@@ -145,6 +161,7 @@ implementation{
                     //     dbg(FLOODING_CHANNEL, "\n");
                     // }
                 } else {
+                    // forward reply if not for this node
                     call SimpleSend.send(*package, AM_BROADCAST_ADDR);
                 }
             }
@@ -152,6 +169,7 @@ implementation{
         return msg;
     }
 
+    // Periodic timer for neighbor and flood control
     event void sendTimer.fired() {
         uint8_t* updatedNeighbors = call NeighborDiscovery.getNeighbors();
 
@@ -162,22 +180,30 @@ implementation{
 
         // debug check neighbor list
         dbg(FLOODING_CHANNEL, "Updated Neighbor List: ");
+
+        // debug print out neighbor list
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             dbg(FLOODING_CHANNEL, "%d\n ", neighbors[i]);
         }
         dbg(FLOODING_CHANNEL, "\n");
 
+        // check for changes in neighbor list
         for (i = 0; i < MAX_NEIGHBORS; i++){
             if (neighbors[i] != updatedNeighbors[i]) {
                 isStable = FALSE; // mismatch
                 break;
             }
         }
+
         if (isStable) {
             if (stabilityCounter == 0) {
                 dbg(FLOODING_CHANNEL, "Copying Neighbor array to floodPayload\n");
+
+                // first time stable, update flood payload and neighbor graph
                 for (i = 0; i < MAX_NEIGHBORS; i++) {
-                    floodPayload[i] = neighbors[i];
+
+                    // len of payload is the amount of neighbors discovered
+                    floodPayload[i] = neighbors[i]; 
                     neighborGraph[TOS_NODE_ID][i] = neighbors[i];
                     dbg(FLOODING_CHANNEL, "%d -> \n", floodPayload[i]);
                 }
@@ -192,8 +218,9 @@ implementation{
             stabilityCounter = 0;
         }
         
+        // send flood if neighborlist is stable enough (MORE Debug printouts)
         if (stabilityCounter >= MIN_STABLE_NEIGHBOR_TIME) {
-            neighborIndex = 0;  // Reset index for printing
+            neighborIndex = 0;  // reset index for printing
             dbg(FLOODING_CHANNEL, "PRINTING LIST OF ND: \n");
             while (neighborIndex < MAX_NEIGHBORS) {
                 dbg(FLOODING_CHANNEL, "%d -> \n", neighborGraph[TOS_NODE_ID][neighborIndex]);
@@ -212,6 +239,7 @@ implementation{
         }
     }
 
+    // sends flood packet with current neighbor info
     void sendPack(){
         if(seqNumCount < MAX_SEQ){ // seq number doesn't exceed limit [20]
             makePack(&packetInfo, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_FLOODING, seqNumCount, floodPayload, packetPayloadLen); 
@@ -221,6 +249,7 @@ implementation{
         }
     }
 
+    // sends reply to a flood packet
     void sendReply(uint16_t dest){
         dbg(FLOODING_CHANNEL, "Sending flooding reply to %d\n", dest);
         makePack(&packetInfo, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_FLOODINGREPLY, seqReplyCount, floodPayload, packetPayloadLen); 
