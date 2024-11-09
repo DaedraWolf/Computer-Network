@@ -137,7 +137,7 @@ implementation {
         }
     }
 
-    // update neighbor ghraph with new info
+    // update neighbor graph with new info
     void updateNeighborGraph(uint16_t neighborTable[], uint16_t src) {
         uint16_t i;
 

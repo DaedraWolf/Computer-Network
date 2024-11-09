@@ -179,7 +179,7 @@ implementation{
         bool isStable = TRUE;
 
         // debug check neighbor list
-        dbg(FLOODING_CHANNEL, "Updated Neighbor List: ");
+        dbg(FLOODING_CHANNEL, "Updated Neighbor List:\n ");
 
         // debug print out neighbor list
         for (i = 0; i < MAX_NEIGHBORS; i++) {
@@ -205,7 +205,7 @@ implementation{
                     // len of payload is the amount of neighbors discovered
                     floodPayload[i] = neighbors[i]; 
                     neighborGraph[TOS_NODE_ID][i] = neighbors[i];
-                    dbg(FLOODING_CHANNEL, "%d -> \n", floodPayload[i]);
+                    // dbg(FLOODING_CHANNEL, "%d -> \n", floodPayload[i]);
                 }
             }
             stabilityCounter++;

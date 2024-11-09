@@ -8,7 +8,7 @@ def main():
     s.runTime(10);
 
     # Load the the layout of the network.
-    s.loadTopo("long_line.topo");
+    s.loadTopo("example.topo");
 
     # Add a noise model to all of the motes.
     s.loadNoise("no_noise.txt");
@@ -23,17 +23,21 @@ def main():
 
     # After sending a ping, simulate a little to prevent collision.
     s.runTime(1);
-    s.ping(2, 6, "Hello, World");
-    s.runTime(1);
+    # s.ping(2, 6, "Hello, World");
+    # s.runTime(1);
 
     # After FLOODING EVENT, s.flood(node), s.runtime(reruns clock)
     for i in range(1, 20):
-        if i != 3:
+        if i != 3 and i != 6:
             s.flood(i, 3);
+            s.runTime(1);
+            s.flood(i, 6);
             s.runTime(1);
     s.runTime(10);
     s.linkStateAdvertise(3);
-    s.runTime(100);
+    s.runTime(10);
+    s.linkStateAdvertise(6);
+    s.runTime(150);
 
 if __name__ == '__main__':
     main()
