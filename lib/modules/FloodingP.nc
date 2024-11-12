@@ -26,7 +26,7 @@ implementation{
 
     // Array to store a list of sequence #'s of recieved packets (duplication)
     uint8_t receivedSeq[MAX_NEIGHBORS]; // Store sequence numbers of received packets
-    uint8_t receivedReplySeq[MAX_NEIGHBORS];
+    uint8_t receivedReplySeq[MAX_NEIGHBORS][MAX_NEIGHBORS];
     // uint8_t recievedSeqCount = 0;  // # of seq num stored in array
 
     uint8_t stabilityCounter = 0;
@@ -134,11 +134,11 @@ implementation{
             } else if (package->protocol == PROTOCOL_FLOODINGREPLY) {
 
                 // duplicate reply detection
-                if (package->seq <= receivedReplySeq[package->src]) {
+                if (package->seq <= receivedReplySeq[package->src][package->dest]) {
                     dbg(FLOODING_CHANNEL, "Dropping duplicate reply package\n");
                     return msg;
                 }
-                receivedReplySeq[package->src] = package->seq;
+                receivedReplySeq[package->src][package->dest] = package->seq;
 
                 // process reply for destination node
                 if (package->dest == TOS_NODE_ID) {
