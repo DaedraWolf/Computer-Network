@@ -17,6 +17,9 @@ implementation {
     uint16_t destination;
     pack sendReq;
 
+    uint8_t* receivedPacks;
+    uint16_t receiveFrame = 0;
+
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     void sendPack(uint16_t seqNum);
     void forwardPack(pack* Package);
@@ -41,13 +44,17 @@ implementation {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
             if (package->protocol == PROTOCOL_TCP) {
-                if (package->seq < frame || package->seq > frame + SLIDING_WINDOW_SIZE) {
+                if (package->seq < receiveFrame || package->seq > receiveFrame + SLIDING_WINDOW_SIZE) {
                     //drop
+                } else {
+                    dbg(TRANSPORT_CHANNEL, "Messaged Received: %d", package->payload);
+                    receivedPacks[package->seq] = package->payload;
+                    if (package->seq == receiveFrame)
+                        receiveFrame++;
                 }
 
                 //send ack
-            }
-            if (package->protocol == PROTOCOL_TCPREPLY) {
+            } else if (package->protocol == PROTOCOL_TCPREPLY) {
                 if (package->seq == frame) {
                     frame++;
                 }
@@ -65,8 +72,8 @@ implementation {
     }
 
     void sendPack(uint16_t seqNum){
-        makePack(&sendReq, TOS_NODE_ID, 0, MAX_TTL, PROTOCOL_TCP, seqNum, sendPayload, sendLength); 
-        call SimpleSend.send(sendReq, destination);
+        makePack(&sendReq, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_TCP, seqNum, sendPayload, sendLength); 
+        call SimpleSend.send(sendReq, call LinkState.getNextHop(destination));
         // dbg(GENERAL_CHANNEL, "Node %d broadcasting package; Sequence number: %d\n", TOS_NODE_ID, sequenceNum);
     }
 
