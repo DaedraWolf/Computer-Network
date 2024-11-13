@@ -26,6 +26,8 @@ module Node{
    uses interface NeighborDiscovery;
 
    uses interface LinkState;
+
+   uses interface TCPSend;
 }
 
 implementation{

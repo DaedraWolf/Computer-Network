@@ -39,4 +39,7 @@ implementation {
 
     components LinkStateC;
     Node.LinkState -> LinkStateC;
+
+    components TCPSendC;
+    Node.TCPSend -> TCPSendC;
 }
