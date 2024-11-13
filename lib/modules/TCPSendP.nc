@@ -5,6 +5,7 @@ module TCPSendP{
     uses interface SimpleSend;
     uses interface Receive as Receiver;
     uses interface Timer<TMilli> as sendTimer;
+    uses interface LinkState;
 }
 
 implementation {

@@ -17,4 +17,7 @@ implementation{
 
    components new AMReceiverC(AM_PACK) as Receiver;
    TCPSendP.Receiver -> Receiver;
+
+   components LinkStateC;
+   TCPSendP.LinkState -> LinkStateC;
 }
