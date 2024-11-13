@@ -13,7 +13,7 @@ implementation {
     uint16_t ttl = MAX_TTL;
     // uint16_t seqNum = 0;
     uint16_t frame = 0;
-    uint8_t* sendPayload = ""; //use array?
+    uint8_t* sendPayload;
     uint16_t destination;
     pack sendReq;
 
@@ -21,9 +21,10 @@ implementation {
     void sendPack(uint16_t seqNum);
     void forwardPack(pack* Package);
 
-    command void TCPSend.send(uint16_t dest){
+    command void TCPSend.send(uint16_t dest, uint8_t* payload){
         dbg(GENERAL_CHANNEL, "Starting TCP Send\n");
         destination = dest;
+        sendPayload = payload;
         call sendTimer.startPeriodic(5000);
     }
 
