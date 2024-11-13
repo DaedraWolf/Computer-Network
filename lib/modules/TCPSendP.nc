@@ -70,4 +70,7 @@ implementation {
         // dbg(GENERAL_CHANNEL, "Node %d broadcasting package; Sequence number: %d\n", TOS_NODE_ID, sequenceNum);
     }
 
+    void forwardPack(pack* Package){
+        call SimpleSend.send(*Package, call LinkState.getNextHop(Package->dest));
+    }
 }

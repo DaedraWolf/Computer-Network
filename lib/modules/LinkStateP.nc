@@ -47,6 +47,10 @@ implementation {
         call LSATimer.startPeriodic(LSA_REFRESH_INTERVAL);
     }
 
+    command uint16_t LinkState.getNextHop(uint16_t dest) {
+        return call Dijkstra.getNextHop(dest);
+    }
+
     // handles recieved LSA packets
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
