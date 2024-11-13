@@ -16,7 +16,7 @@ implementation {
     uint16_t ttl = MAX_TTL;
     // uint16_t seqNum = 0;
     uint16_t frame = 0;
-    uint8_t sendPayload[SOCKET_BUFFER_SIZE]; //use array?
+    uint8_t* sendPayload; //use array?
     uint16_t destination;
     pack sendReq;
     socket_store_t socket;
