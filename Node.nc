@@ -38,6 +38,8 @@ implementation{
       call AMControl.start();
 
       dbg(GENERAL_CHANNEL, "Booted\n");
+      
+      call LinkState.advertise();
    }
 
    event void AMControl.startDone(error_t err){
@@ -71,7 +73,10 @@ implementation{
 
    event void CommandHandler.printNeighbors(){}
 
-   event void CommandHandler.printRouteTable(){}
+   event void CommandHandler.printRouteTable(){
+      dbg(GENERAL_CHANNEL, "PRINTING LINKSTATE ROUTE TABLE... \n");
+      call LinkState.printRouteTable();
+   }
 
    event void CommandHandler.printLinkState(){}
 

@@ -1,4 +1,4 @@
-#define WINDOW_SIZE 10
+#define WINDOW_SIZE 5
 
 #include "../../includes/am_types.h"
 

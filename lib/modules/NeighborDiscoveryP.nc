@@ -28,7 +28,7 @@ implementation{
 
     command void NeighborDiscovery.discoverNeighbors(){
         dbg(GENERAL_CHANNEL, "Starting Neighbor Discovery\n");
-        call sendTimer.startPeriodic(5000);
+        call sendTimer.startPeriodic(1200);
     }
 
     event void sendTimer.fired(){
