@@ -82,10 +82,12 @@ implementation{
     }
 
     command error_t Transport.close(socket_t fd){
+        socket_store_t *currentSocket;
+
         if (fd >= MAX_NUM_OF_SOCKETS || fd < 0)
             return FAIL;
 
-        socket_store_t *currentSocket = &sockets[fd];
+        currentSocket = &sockets[fd];
 
         if (currentSocket->state == CLOSED)
             return SUCCESS;
