@@ -116,7 +116,7 @@ implementation{
                     if (package->dest == 0)
                         call SimpleSend.send(*package, AM_BROADCAST_ADDR);
 
-                    sendReply(package->src);
+                    // sendReply(package->src);
 
                     // if flooding packet then keep flooding
                     // if (package->protocol == PROTOCOL_FLOODING && package->TTL > 0) {

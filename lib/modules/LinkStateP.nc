@@ -1,4 +1,5 @@
 #define LSA_REFRESH_INTERVAL 10000
+#define LSA_MINIMUM_RECEIVED 3
 
 module LinkStateP{
     provides interface LinkState;
@@ -47,6 +48,14 @@ implementation {
         call LSATimer.startPeriodic(LSA_REFRESH_INTERVAL);
     }
 
+    command void LinkState.printRouteTable() {
+        uint8_t i;
+
+        for (i = 0; i < MAX_NEIGHBORS; i++) {
+            dbg(ROUTING_CHANNEL, "%d -> %d\n", i, call Dijkstra.getNextHop(i));
+        }
+    }
+
     // handles recieved LSA packets
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
@@ -67,13 +76,13 @@ implementation {
 
         // tempGraph represents 1D array that represents connectivity between nodes
         uint8_t* tempGraph = call Flooding.getNeighborGraph();
-        dbg(ROUTING_CHANNEL, "Printing Neighbor Graph\n");
+        // dbg(ROUTING_CHANNEL, "Printing Neighbor Graph\n");
 
         // check if there is enough topology info is available
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             for (j = 0; j < MAX_NEIGHBORS; j++) {
                 neighborGraph[i][j] = tempGraph[i * MAX_NEIGHBORS + j];
-                dbg(ROUTING_CHANNEL, "Neighbors[%d][%d] = %d\n", i, j, tempGraph[i * MAX_NEIGHBORS + j]);
+                // dbg(ROUTING_CHANNEL, "Neighbors[%d][%d] = %d\n", i, j, tempGraph[i * MAX_NEIGHBORS + j]);
             }
         }
         
@@ -126,15 +135,10 @@ implementation {
 
     // calculates routing table using dijkstra
     void loadDistanceTable() {
-        uint8_t i;
-
         // run dijkstra algorithm on neighbor graph
         call Dijkstra.make(neighborGraph, TOS_NODE_ID);
-
-        dbg(ROUTING_CHANNEL, "Printing routing table\n");
-        for (i = 0; i < MAX_NEIGHBORS; i++) {
-            dbg(ROUTING_CHANNEL, "%d -> %d\n", i, call Dijkstra.getNextHop(i));
-        }
+        
+        // call LinkState.printRouteTable();
     }
 
     // update neighbor graph with new info
@@ -165,6 +169,6 @@ implementation {
             }
         }
         // returns true if at least 5 nodes have neighbors
-        return (receivedCount >= 5);
+        return (receivedCount >= LSA_MINIMUM_RECEIVED);
     }
 }
