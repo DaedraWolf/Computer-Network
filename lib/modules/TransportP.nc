@@ -105,6 +105,7 @@ implementation{
         currentSocket->dest.port = 0;
         currentSocket->dest.addr = 0;
 
+        dbg(TRANSPORT_CHANNEL, "Closed socket %d\n", fd);
         return SUCCESS;
     }
 
