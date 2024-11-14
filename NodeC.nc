@@ -42,4 +42,7 @@ implementation {
 
     components TCPSendC;
     Node.TCPSend -> TCPSendC;
+
+    components TransportC;
+    Node.Transport -> TransportC;
 }

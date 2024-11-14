@@ -28,6 +28,7 @@ module Node{
    uses interface LinkState;
 
    uses interface TCPSend;
+   uses interface Transport;
 }
 
 implementation{
