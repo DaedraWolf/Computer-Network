@@ -22,30 +22,25 @@ implementation{
             if (sockets[i].state == CLOSED){
                 // listen state
                 sockets[i].state = LISTEN;
-                dbg(TRANSPORT_CHANNEL, "Socket allocated with ID: %d\n", i);
+                dbg(TRANSPORT_CHANNEL, "[Transport.socket] Socket allocated with ID: %d\n", i);
                 return i; // Return socket ID
             }
         }
-        dbg(TRANSPORT_CHANNEL, "No sockets available\n");
+        dbg(TRANSPORT_CHANNEL, "[Transport.socket] No sockets available\n");
         return NULL_SOCKET; // No Sockets available
     }
 
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
-        // Check if currentSocket is valid
-        // if (currentSocket == NULL){
-        //     dbg(TRANSPORT_CHANNEL, "Bind failed (No active sockets)\n");
-        //     return FAIL;
-        // }
 
         if (sockets[fd].state == LISTEN){
 
             addr->addr = TOS_NODE_ID;
             sockets[fd].src = 80; 
             addr->port = 80;
-            dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
+            dbg(TRANSPORT_CHANNEL, "[Transport.bind] Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
             return SUCCESS; // Able to bind
         }
-        dbg(TRANSPORT_CHANNEL, "Unable to bind\n");
+        dbg(TRANSPORT_CHANNEL, "[Transport.bind] Unable to bind\n");
         return FAIL; // Unable to bind
     }
 
@@ -55,16 +50,31 @@ implementation{
             if (sockets[fd].state == SYN_RCVD){
                 // ESTABLISHED transition 
                 sockets[fd].state = ESTABLISHED; 
-                dbg(TRANSPORT_CHANNEL, "Socket %d accepted connection from %d\n", fd, sockets[fd].dest.addr);
+                dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d accepted connection from %d\n", fd, sockets[fd].dest.addr);
                 return fd;
             }
         }
-        dbg(TRANSPORT_CHANNEL, "Socket %d cannot accept connection (no SYN recieved\n", fd);
+        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved\n", fd);
         return NULL_SOCKET;
     }
 
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen){
-        return 0;
+        if (sockets[fd].state != ESTABLISHED) {
+            dbg(TRANSPORT_CHANNEL, "Write failed, Socket %d is not established\n", fd);
+            return 0;
+        }
+        
+        uint16_t writeLen;
+        if (bufflen < SOCKET_BUFFER_SIZE){
+            write = bufflen;
+        }
+        else {
+            writeLen = SOCKET_BUFFER_SIZE;
+        }
+        uint8_t i;
+        for (i = 0; i < writeLen; i++) {
+            sockets[fd].sendBuff[i] = buff[i];
+        }
     }
 
     command error_t Transport.receive(pack* package){
