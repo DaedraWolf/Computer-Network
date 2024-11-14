@@ -31,11 +31,6 @@ implementation{
     }
 
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
-        // Check if currentSocket is valid
-        // if (currentSocket == NULL){
-        //     dbg(TRANSPORT_CHANNEL, "Bind failed (No active sockets)\n");
-        //     return FAIL;
-        // }
 
         if (sockets[fd].state == LISTEN){
 
