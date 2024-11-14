@@ -9,6 +9,8 @@ module TransportP{
 }
 
 implementation{
+    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
+
     command socket_t Transport.socket(){
         return 0;
     }
@@ -38,7 +40,33 @@ implementation{
     }
 
     command error_t Transport.close(socket_t fd){
-        return 0;
+        if (fd >= MAX_NUM_OF_SOCKETS || fd < 0)
+            return FAIL;
+
+        socket_store_t *currentSocket = &sockets[fd];
+
+        if (currentSocket->state == CLOSED)
+            return SUCCESS;
+        
+        currentSocket->state = CLOSED;
+
+        memset(currentSocket->sendBuff, 0, SOCKET_BUFFER_SIZE);
+        memset(currentSocket->rcvdBuff, 0, SOCKET_BUFFER_SIZE);
+
+        currentSocket->lastWritten = 0;
+        currentSocket->lastAck = 0;
+        currentSocket->lastSent = 0;
+        currentSocket->lastRead = 0;
+        currentSocket->lastRcvd = 0;
+        currentSocket->nextExpected = 0;
+        currentSocket->RTT = 0;
+        currentSocket->effectiveWindow = 0;
+
+        currentSocket->src = 0;
+        currentSocket->dest.port = 0;
+        currentSocket->dest.addr = 0;
+
+        return SUCCESS;
     }
 
     command error_t Transport.release(socket_t fd){
@@ -57,4 +85,12 @@ implementation{
         uint16_t i;
     }
 
+    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
+        Package->src = src; // Link Layer Head
+        Package->dest = dest; // Link Layer Head
+        Package->TTL = TTL; // Flooding Header
+        Package->seq = seq; // Flooding Header
+        Package->protocol = protocol; // Flooding Header
+        memcpy(Package->payload, payload, length);
+    }
 }
