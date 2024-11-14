@@ -8,8 +8,8 @@ def main():
     s.runTime(10);
 
     # Load the the layout of the network.
-    # s.loadTopo("long_line.topo");
-    s.loadTopo("example.topo");
+    s.loadTopo("long_line.topo");
+    # s.loadTopo("example.topo");
 
     # Add a noise model to all of the motes.
     s.loadNoise("no_noise.txt");
@@ -23,10 +23,8 @@ def main():
     s.addChannel(s.ROUTING_CHANNEL);
     # s.addChannel(s.FLOODING_CHANNEL);
 
-    s.runTime(1);
-    s.ping(2, 6, "Hello, World");
-
-    s.runTime(100);
+    # Needs some time to build routing tables
+    s.runTime(500);
 
     for x in range(1, 6):
         s.routeDMP(x);
