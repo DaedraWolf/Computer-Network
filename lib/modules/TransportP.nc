@@ -17,7 +17,8 @@ implementation{
     uint16_t destination;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
-
+    
+    // Allocates new socket(s)
     command socket_t Transport.socket(){
         uint16_t i;
         for(i = 0; i < MAX_NUM_OF_SOCKETS; i++){
@@ -32,6 +33,7 @@ implementation{
         return NULL_SOCKET; // No Sockets available
     }
 
+    // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
 
         if (sockets[fd].state == LISTEN){
@@ -46,6 +48,7 @@ implementation{
         return FAIL; // Unable to bind
     }
 
+    // Accepts incoming connectivity
     command socket_t Transport.accept(socket_t fd){
         if (sockets[fd].state == LISTEN) {
             // Check if SYN packet is ready to accept
@@ -60,23 +63,42 @@ implementation{
         return NULL_SOCKET;
     }
 
+    // Send data from buffer through the socket
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen){
+        /* Goal: Take data from a buffer and create TCP packs, 
+        > Send them over network, handles buffering (and retransmissions)
+        */
         return 0;
     }
 
     command error_t Transport.receive(pack* package){
+        /* Goal: Processes incoming TCP packets
+        > Transport layer would parse incoming packets, (validate)
+        update socket states or buffers (for handling incoming data)
+        */
         return 0;
     }
 
     command uint16_t Transport.read(socket_t fd, uint8_t *buff, uint16_t bufflen){
+        /* Goal: Reads data from a socket into a buffer
+        > fetches recived data from socket's recieve buffer,
+        processes incoming data
+        */
         return 0;
     }
 
     command error_t Transport.connect(socket_t fd, socket_addr_t * addr){
+        /* Goal: Intiates a connection a remote socket
+        > 3-way handshake (sending SYN and wait for SYN-ACK)
+        > Set state to SYN_SENT during handshake
+        */ 
         return 0;
     }
 
     command error_t Transport.close(socket_t fd){
+        /* Goal: Close a socket
+        > Clears buffers, resets variables
+        */
         socket_store_t *currentSocket;
 
         if (fd >= MAX_NUM_OF_SOCKETS || fd < 0)
@@ -110,21 +132,33 @@ implementation{
     }
 
     command error_t Transport.release(socket_t fd){
+        /* Goal: Forces hard close on socket
+        > Terminates connection abruptly
+        */
         return 0;
     }
 
     command error_t Transport.listen(socket_t fd){
+        /* Goal: socket into listening state, waiting for incoming connections
+        > Transitions socket state to LISTEN 
+        */
         return 0;
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
+        /* Handles incoming network-layer messages and 
+        proccess them for transport-layer use
+        > Msg recieved at network layer, routing packet to appropriate socket
+        */
         return msg;
     }
 
     event void sendTimer.fired(){
+        // Goal: Timer event for retranmission (previous tasks) 
         uint16_t i;
     }
 
+    // Constructs a TCP packet, encapsulate data with headers
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
         Package->src = src; // Link Layer Head
         Package->dest = dest; // Link Layer Head
