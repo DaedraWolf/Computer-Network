@@ -38,7 +38,7 @@ implementation{
 
             addr->addr = TOS_NODE_ID;
             sockets[fd].src = 80; 
-            addr->port = 80;
+            addr->port = 80; 
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
             return SUCCESS; // Able to bind
         }
