@@ -13,6 +13,7 @@ class TestSim:
     CMD_PING = 0
     CMD_NEIGHBOR_DUMP = 1
     CMD_ROUTE_DUMP=3
+    CMD_TEST_SERVER=5
     CMD_FLOOD=7
     CMD_NEIGHBOR_DISCOVERY=8
     CMD_LINKSTATE_AD=10
@@ -141,6 +142,9 @@ class TestSim:
 
     def linkStateAdvertise(self, source):
         self.sendCMD(self.CMD_LINKSTATE_AD, source, "linkstate command");
+    
+    def cmdTestServer(self, addr, port):
+        self.self.sendCMD(self.CMD_TEST_SERVER, source, "testserver command");
     # end of new additions
 
 def main():
