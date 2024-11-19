@@ -8,7 +8,7 @@ module TransportP{
     uses interface SimpleSend;
     uses interface Receive as Receiver;
     uses interface Timer<TMilli> as sendTimer;
-    uses interface LinkState;
+    uses interface LinkState; // call LinkState.send(packet, destination);
 }
 
 implementation{
