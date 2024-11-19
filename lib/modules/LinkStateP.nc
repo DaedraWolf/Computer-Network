@@ -59,13 +59,13 @@ implementation {
         }
     }
     
-    command void LinkState.send(pack packet, uint16_t destination) {
-        call SimpleSend.send(packet, call Dijkstra.getNextHop(destination));
+    command void LinkState.send(pack package) {
+        call SimpleSend.send(package, call Dijkstra.getNextHop(package.dest));
     }
 
     command void LinkState.ping(uint16_t destination) {
         makePack(&sendReq, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_LSPING, seqNum, pingPayload, pingPayloadLength);
-        call LinkState.send(sendReq, destination);
+        call LinkState.send(sendReq);
     }
 
     // handles recieved LSA packets
@@ -81,14 +81,13 @@ implementation {
             if (package->dest == TOS_NODE_ID){
                 if (package->protocol == PROTOCOL_LSPING) {
                     makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_LSPINGREPLY, package->seq, pingPayload, pingPayloadLength);
-                    call LinkState.send(sendReq, package->src);
+                    call LinkState.send(sendReq);
                 } else if (package->protocol == PROTOCOL_LSPINGREPLY) {
                     dbg(ROUTING_CHANNEL, "Ping successful from %d to %d", TOS_NODE_ID, package->src);
-                    
                 }
                 return msg;
             }
-            call LinkState.send(*package, package->dest);
+            call LinkState.send(*package);
         }
     }
 
