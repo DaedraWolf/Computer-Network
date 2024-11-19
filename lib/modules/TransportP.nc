@@ -33,6 +33,10 @@ implementation{
         return NULL_SOCKET; // No Sockets available
     }
 
+    // if (sockets[fd].state == LISTEN){
+    //     call LinkState.send(packet);
+    // }
+
     // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
 
