@@ -35,6 +35,7 @@ implementation{
 
     // if (sockets[fd].state == LISTEN){
     //     call LinkState.send(packet);
+    //     dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
     // }
 
     // Binds socket with an address and port
