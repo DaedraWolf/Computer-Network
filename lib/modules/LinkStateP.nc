@@ -31,6 +31,9 @@ implementation {
     uint8_t payloadLength = sizeof(linkStatePayload);
     pack sendReq;
 
+    uint8_t* pingPayload = "";
+    uint8_t pingPayloadLength = sizeof(pingPayload);
+
     uint16_t neighborGraph[MAX_NEIGHBORS][MAX_NEIGHBORS];
 
     uint8_t* tempPayload = ""; // just for testing
@@ -55,14 +58,37 @@ implementation {
             dbg(ROUTING_CHANNEL, "%d -> %d\n", i, call Dijkstra.getNextHop(i));
         }
     }
+    
+    command void LinkState.send(pack packet, uint16_t destination) {
+        call SimpleSend.send(packet, call Dijkstra.getNextHop(destination));
+    }
+
+    command void LinkState.ping(uint16_t destination) {
+        makePack(&sendReq, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_LSPING, seqNum, pingPayload, pingPayloadLength);
+        call LinkState.send(sendReq, destination);
+    }
 
     // handles recieved LSA packets
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
+
             if (package->protocol == PROTOCOL_LINKSTATE) {
                 dbg(ROUTING_CHANNEL, "LSA Package Received at Node %d\n", TOS_NODE_ID);
+                return msg;
             }
+
+            if (package->dest == TOS_NODE_ID){
+                if (package->protocol == PROTOCOL_LSPING) {
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_LSPINGREPLY, package->seq, pingPayload, pingPayloadLength);
+                    call LinkState.send(sendReq, package->src);
+                } else if (package->protocol == PROTOCOL_LSPINGREPLY) {
+                    dbg(ROUTING_CHANNEL, "Ping successful from %d to %d", TOS_NODE_ID, package->src);
+                    
+                }
+                return msg;
+            }
+            call LinkState.send(*package, package->dest);
         }
     }
 
