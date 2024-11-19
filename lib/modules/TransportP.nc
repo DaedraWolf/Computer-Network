@@ -151,11 +151,20 @@ implementation{
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
-        /* Handles incoming network-layer messages and 
-        proccess them for transport-layer use
-        > Msg recieved at network layer, routing packet to appropriate socket
-        */
-        return msg;
+        if (len == sizeof(pack)) {
+            pack* package = (pack*)payload;
+
+            if (package->protocol == PROTOCOL_TCP){
+                if (package->dest == TOS_NODE_ID) {
+                    // makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, pingPayload, pingPayloadLength);
+                    // call LinkState.send(sendReq);
+                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
+                } else {
+                    dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
+                    call LinkState.send(*package);
+                }
+            }
+        }
     }
 
     event void sendTimer.fired(){

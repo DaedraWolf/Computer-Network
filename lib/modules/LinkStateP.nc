@@ -90,7 +90,7 @@ implementation {
             }
 
             if (package->protocol == PROTOCOL_LSPING || package->protocol == PROTOCOL_LSPINGREPLY){
-                dbg(ROUTING_CHANNEL, "Forwarding LS Ping/Reply.\n", TOS_NODE_ID, package->src);
+                dbg(ROUTING_CHANNEL, "Forwarding LS Ping/Reply.\n");
                 call LinkState.send(*package);
             }
         }
