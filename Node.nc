@@ -108,6 +108,11 @@ implementation{
       dbg(GENERAL_CHANNEL, "LINKSTATE ADVERTISE EVENT \n");
       call LinkState.advertise();
    }
+
+   event void CommandHandler.linkStatePing(uint16_t dest){
+      dbg(GENERAL_CHANNEL, "LINKSTATE PING EVENT \n");
+      call LinkState.ping(dest);
+   }
    //end of new additions
 
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){

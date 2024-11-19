@@ -82,12 +82,17 @@ implementation {
                 if (package->protocol == PROTOCOL_LSPING) {
                     makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_LSPINGREPLY, package->seq, pingPayload, pingPayloadLength);
                     call LinkState.send(sendReq);
+                    dbg(ROUTING_CHANNEL, "Ping received at %d from %d. Sending Reply.\n", TOS_NODE_ID, package->src);
                 } else if (package->protocol == PROTOCOL_LSPINGREPLY) {
-                    dbg(ROUTING_CHANNEL, "Ping successful from %d to %d", TOS_NODE_ID, package->src);
+                    dbg(ROUTING_CHANNEL, "Ping reply received at %d from %d.\n", TOS_NODE_ID, package->src);
                 }
                 return msg;
             }
-            call LinkState.send(*package);
+
+            if (package->protocol == PROTOCOL_LSPING || package->protocol == PROTOCOL_LSPINGREPLY){
+                dbg(ROUTING_CHANNEL, "Forwarding LS Ping/Reply.\n", TOS_NODE_ID, package->src);
+                call LinkState.send(*package);
+            }
         }
     }
 

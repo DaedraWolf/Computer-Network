@@ -17,6 +17,7 @@ class TestSim:
     CMD_FLOOD=7
     CMD_NEIGHBOR_DISCOVERY=8
     CMD_LINKSTATE_AD=10
+    CMD_LSPING=11
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -145,6 +146,9 @@ class TestSim:
     
     def cmdTestServer(self, addr, port):
         self.self.sendCMD(self.CMD_TEST_SERVER, source, "testserver command");
+
+    def LSPing(self, source, dest):
+        self.sendCMD(self.CMD_LSPING, source, "{0}{1}".format(chr(dest), "linkstate ping command"));
     # end of new additions
 
 def main():
