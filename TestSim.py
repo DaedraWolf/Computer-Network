@@ -13,9 +13,12 @@ class TestSim:
     CMD_PING = 0
     CMD_NEIGHBOR_DUMP = 1
     CMD_ROUTE_DUMP=3
+    CMD_TEST_CLIENT=4
+    CMD_TEST_SERVER=5
     CMD_FLOOD=7
     CMD_NEIGHBOR_DISCOVERY=8
     CMD_LINKSTATE_AD=10
+    CMD_LSPING=11
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -30,6 +33,7 @@ class TestSim:
 
     # Project 3
     TRANSPORT_CHANNEL="transport";
+
 
     # Personal Debuggin Channels for some of the additional models implemented.
     HASHMAP_CHANNEL="hashmap";
@@ -128,6 +132,12 @@ class TestSim:
     def routeDMP(self, destination):
         self.sendCMD(self.CMD_ROUTE_DUMP, destination, "routing command");
 
+    def testServer(self, destination):
+        self.sendCMD(self.CMD_TEST_SERVER, destination, "testServer command");
+
+    def testClient(self, destination):
+        self.sendCMD(self.CMD_TEST_CLIENT, destination, "testClient command");
+
     def addChannel(self, channelName, out=sys.stdout):
         print 'Adding Channel', channelName;
         self.t.addChannel(channelName, out);
@@ -141,6 +151,12 @@ class TestSim:
 
     def linkStateAdvertise(self, source):
         self.sendCMD(self.CMD_LINKSTATE_AD, source, "linkstate command");
+    
+    def cmdTestServer(self, addr, port):
+        self.self.sendCMD(self.CMD_TEST_SERVER, source, "testserver command");
+
+    def LSPing(self, source, dest):
+        self.sendCMD(self.CMD_LSPING, source, "{0}{1}".format(chr(dest), "linkstate ping command"));
     # end of new additions
 
 def main():

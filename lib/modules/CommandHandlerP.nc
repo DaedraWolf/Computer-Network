@@ -93,6 +93,11 @@ implementation{
                 dbg(COMMAND_CHANNEL, "Command Type: LinkState Advertise\n");
                 signal CommandHandler.linkStateAdvertise();
                 break;
+
+            case CMD_LSPING:
+                dbg(COMMAND_CHANNEL, "Command Type: LinkState Ping\n");
+                signal CommandHandler.linkStatePing(buff[0]);
+                break;
             
             // End of new additions
 
