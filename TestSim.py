@@ -13,6 +13,7 @@ class TestSim:
     CMD_PING = 0
     CMD_NEIGHBOR_DUMP = 1
     CMD_ROUTE_DUMP=3
+    CMD_TEST_CLIENT=4
     CMD_TEST_SERVER=5
     CMD_FLOOD=7
     CMD_NEIGHBOR_DISCOVERY=8
@@ -31,6 +32,7 @@ class TestSim:
 
     # Project 3
     TRANSPORT_CHANNEL="transport";
+
 
     # Personal Debuggin Channels for some of the additional models implemented.
     HASHMAP_CHANNEL="hashmap";
@@ -128,6 +130,12 @@ class TestSim:
 
     def routeDMP(self, destination):
         self.sendCMD(self.CMD_ROUTE_DUMP, destination, "routing command");
+
+    def testServer(self, destination):
+        self.sendCMD(self.CMD_TEST_SERVER, destination, "testServer command");
+
+    def testClient(self, destination):
+        self.sendCMD(self.CMD_TEST_CLIENT, destination, "testClient command");
 
     def addChannel(self, channelName, out=sys.stdout):
         print 'Adding Channel', channelName;
