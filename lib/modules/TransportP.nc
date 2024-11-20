@@ -38,6 +38,8 @@ implementation{
     //     dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
     // }
 
+    // SYN and ACK 
+
     // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
 
@@ -70,26 +72,28 @@ implementation{
 
     // Send data from buffer through the socket
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen){
-        if (sockets[fd].state != ESTABLISHED) {
-            dbg(TRANSPORT_CHANNEL, "Write failed, Socket %d is not established\n", fd);
-            /* Goal: Take data from a buffer and create TCP packs, 
-        > Send them over network, handles buffering (and retransmissions)
-        */
-        return 0;
-        }
+    //     if (sockets[fd].state != ESTABLISHED) {
+    //         dbg(TRANSPORT_CHANNEL, "Write failed, Socket %d is not established\n", fd);
+    //         /* Goal: Take data from a buffer and create TCP packs, 
+    //     > Send them over network, handles buffering (and retransmissions)
+    //     */
+    //     return 0;
+    //     }
         
-        uint16_t writeLen;
-        if (bufflen < SOCKET_BUFFER_SIZE){
-            write = bufflen;
-        }
-        else {
-            writeLen = SOCKET_BUFFER_SIZE;
-        }
-        uint8_t i;
-        for (i = 0; i < writeLen; i++) {
-            sockets[fd].sendBuff[i] = buff[i];
-        }
+    //     uint16_t writeLen;
+    //     if (bufflen < SOCKET_BUFFER_SIZE){
+    //         write = bufflen;
+    //     }
+    //     else {
+    //         writeLen = SOCKET_BUFFER_SIZE;
+    //     }
+    //     uint8_t i;
+    //     for (i = 0; i < writeLen; i++) {
+    //         sockets[fd].sendBuff[i] = buff[i];
+    //     }
+        return 0;
     }
+
 
     command error_t Transport.receive(pack* package){
         /* Goal: Processes incoming TCP packets
