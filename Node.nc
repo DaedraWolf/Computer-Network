@@ -85,9 +85,15 @@ implementation{
 
    event void CommandHandler.printDistanceVector(){}
 
-   event void CommandHandler.setTestServer(){}
+   event void CommandHandler.setTestServer(){
+      dbg(GENERAL_CHANNEL, "SETTING TEST SERVER... \n");
+      call Transport.listen(call Transport.socket());
+   }
 
-   event void CommandHandler.setTestClient(){}
+   event void CommandHandler.setTestClient(){
+      dbg(GENERAL_CHANNEL, "SETTING TEST CLIENT... \n");
+      call Transport.connect(call Transport.socket(), 0);
+   }
 
    event void CommandHandler.setAppServer(){}
 
