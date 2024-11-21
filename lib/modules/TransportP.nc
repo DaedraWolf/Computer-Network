@@ -137,8 +137,8 @@ implementation{
         currentSocket->dest.port = 0;
         currentSocket->dest.addr = 0;
 
-        makePack(closePackage, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, 0, currentSocket, sizeof(socket_store_t));
-        call LinkState.send(closePackage);
+        makePack(closePackage, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)currentSocket, sizeof(socket_store_t));
+        call LinkState.send(*closePackage);
 
         dbg(TRANSPORT_CHANNEL, "Closed socket %d\n", fd);
         return SUCCESS;
