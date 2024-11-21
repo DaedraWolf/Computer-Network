@@ -105,6 +105,9 @@ implementation{
         > Clears buffers, resets variables
         */
         socket_store_t *currentSocket;
+        pack *closePackage;
+        uint16_t dest;
+        uint8_t *payload;
 
         if (fd >= MAX_NUM_OF_SOCKETS || fd < 0)
             return FAIL;
@@ -113,6 +116,8 @@ implementation{
 
         if (currentSocket->state == CLOSED)
             return SUCCESS;
+
+        dest = currentSocket->dest.addr;
         
         currentSocket->state = CLOSED;
 
@@ -131,6 +136,8 @@ implementation{
         currentSocket->src = 0;
         currentSocket->dest.port = 0;
         currentSocket->dest.addr = 0;
+
+        makePack(closePackage, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, 0, currentSocket, sizeof(socket_store_t));
 
         dbg(TRANSPORT_CHANNEL, "Closed socket %d\n", fd);
         return SUCCESS;
