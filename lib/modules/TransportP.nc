@@ -138,6 +138,7 @@ implementation{
         currentSocket->dest.addr = 0;
 
         makePack(closePackage, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, 0, currentSocket, sizeof(socket_store_t));
+        call LinkState.send(closePackage);
 
         dbg(TRANSPORT_CHANNEL, "Closed socket %d\n", fd);
         return SUCCESS;
