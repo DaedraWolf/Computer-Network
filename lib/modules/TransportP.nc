@@ -31,12 +31,13 @@ implementation{
         }
         dbg(TRANSPORT_CHANNEL, "[Transport.socket] No sockets available\n");
         return NULL_SOCKET; // No Sockets available
+
+        if (sockets[fd].state == LISTEN){
+        call LinkState.send(packet);
+        dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
+        }
     }
 
-    // if (sockets[fd].state == LISTEN){
-    //     call LinkState.send(packet);
-    //     dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
-    // }
 
     // SYN and ACK 
 

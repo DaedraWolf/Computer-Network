@@ -34,6 +34,8 @@ module Node{
 implementation{
    pack sendPackage;
 
+   socket_t serverSocket;
+   socket_t clientSocket;
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 
@@ -86,13 +88,17 @@ implementation{
    event void CommandHandler.printDistanceVector(){}
 
    event void CommandHandler.setTestServer(){
-      dbg(GENERAL_CHANNEL, "SETTING TEST SERVER... \n");
-      call Transport.listen(call Transport.socket());
+      dbg(TRANSPORT_CHANNEL, "SETTING TEST SERVER... \n");
+      serverSocket = call Transport.socket();
+
+      call Transport.listen(serverSocket);
    }
 
    event void CommandHandler.setTestClient(){
-      dbg(GENERAL_CHANNEL, "SETTING TEST CLIENT... \n");
-      call Transport.connect(call Transport.socket(), 0);
+      dbg(TRANSPORT_CHANNEL, "SETTING TEST CLIENT... \n");
+      clientSocket = call Transport.socket();
+
+      call Transport.connect(clientSocket, 0);
    }
 
    event void CommandHandler.setAppServer(){}
