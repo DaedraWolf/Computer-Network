@@ -31,11 +31,6 @@ implementation{
         }
         dbg(TRANSPORT_CHANNEL, "[Transport.socket] No sockets available\n");
         return NULL_SOCKET; // No Sockets available
-
-        if (sockets[fd].state == LISTEN){
-        call LinkState.send(packet);
-        dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
-        }
     }
 
 
@@ -43,6 +38,8 @@ implementation{
 
     // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
+
+        dbg(TRANSPORT_CHANNEL, "[Transport.bind] Socket %d current state: %d\n", fd, sockets[fd].state);
 
         if (sockets[fd].state == LISTEN){
 
@@ -54,6 +51,11 @@ implementation{
         }
         dbg(TRANSPORT_CHANNEL, "[Transport.bind] Unable to bind\n");
         return FAIL; // Unable to bind
+
+        // if (sockets[fd].state == LISTEN){
+        // call LinkState.send(packet);
+        // dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
+        // }
     }
 
     // Accepts incoming connectivity
