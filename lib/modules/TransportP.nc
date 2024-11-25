@@ -66,16 +66,14 @@ implementation{
     command socket_t Transport.accept(socket_t fd){
         dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d state: %d\n", fd, sockets[fd].state);
         
-        sockets[fd].state = SYN_RCVD;
-            dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d now waiting for SYN\n", fd);
         if (sockets[fd].state == LISTEN) {
             // Check if SYN packet is ready to accept
-            if (sockets[fd].state == SYN_RCVD){
+            sockets[fd].state = SYN_RCVD;
+            dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d now waiting for SYN\n", fd);
                 // ESTABLISHED transition 
-                sockets[fd].state = ESTABLISHED; 
+                // sockets[fd].state = ESTABLISHED; 
                 dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d accepted connection from %d\n", fd, sockets[fd].dest.addr);
                 return fd;
-            }
         }
         dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved)\n", fd);
         return NULL_SOCKET;
