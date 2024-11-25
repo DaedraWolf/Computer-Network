@@ -16,6 +16,15 @@ enum socket_state{
     SYN_RCVD,
 };
 
+// TCP Flags
+enum{
+    TCP_FLAG_DATA = 0,
+    TCP_FLAG_ACK = 1,
+    TCP_FLAG_SYN = 2,
+    TCP_FLAG_SYN_ACK = 3,
+    TCP_FLAG_FIN = 4
+};
+
 
 typedef nx_uint8_t nx_socket_port_t;
 typedef uint8_t socket_port_t;
