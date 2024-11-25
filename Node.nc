@@ -36,7 +36,7 @@ implementation{
 
    socket_t serverSocket;
    socket_t clientSocket;
-   socket_addr_t addr;
+
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
 
@@ -90,17 +90,12 @@ implementation{
 
    event void CommandHandler.setTestServer(){
       dbg(TRANSPORT_CHANNEL, "SETTING TEST SERVER... \n");
-      serverSocket = call Transport.socket();
-      call Transport.bind(serverSocket, &addr);
-      call Transport.listen(serverSocket);
-      call Transport.accept(serverSocket);
+      call Transport.listen( call Transport.socket() );
    }
 
    event void CommandHandler.setTestClient(){
       dbg(TRANSPORT_CHANNEL, "SETTING TEST CLIENT... \n");
-      clientSocket = call Transport.socket();
-      call Transport.bind(serverSocket, &addr);
-      call Transport.connect(clientSocket, &addr);
+      call Transport.connect( call Transport.socket(), 0 );
    }
 
    event void CommandHandler.setAppServer(){}
