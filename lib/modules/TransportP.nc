@@ -15,6 +15,7 @@ implementation{
     // Manage multiple sockets 
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     uint16_t destination;
+    pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     
@@ -47,16 +48,20 @@ implementation{
             sockets[fd].src = 80; 
             addr->port = 80;
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
+
             return SUCCESS; // Able to bind
+
+            // if (sockets[fd].state == LISTEN || seq){
+            //     makePack(&packetInfo, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0);
+            //     call LinkState.send(packet);
+            //     dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
+            // }
+            
         }
         dbg(TRANSPORT_CHANNEL, "[Transport.bind] Unable to bind\n");
         return FAIL; // Unable to bind
-
-        // if (sockets[fd].state == LISTEN){
-        // call LinkState.send(packet);
-        // dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
-        // }
     }
+
 
     // Accepts incoming connectivity
     command socket_t Transport.accept(socket_t fd){
@@ -186,8 +191,8 @@ implementation{
 
             if (package->protocol == PROTOCOL_TCP){
                 if (package->dest == TOS_NODE_ID) {
-                    // makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, pingPayload, pingPayloadLength);
-                    // call LinkState.send(sendReq);
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, pingPayload, pingPayloadLength);
+                    call LinkState.send(sendReq);
                     dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
                 } else {
                     dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");

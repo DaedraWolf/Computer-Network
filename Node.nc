@@ -93,6 +93,7 @@ implementation{
       serverSocket = call Transport.socket();
       call Transport.bind(serverSocket, &addr);
       call Transport.listen(serverSocket);
+      call Transport.accept(serverSocket);
    }
 
    event void CommandHandler.setTestClient(){
