@@ -15,6 +15,7 @@ implementation{
     // Manage multiple sockets 
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     uint16_t destination;
+    pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     
@@ -25,56 +26,85 @@ implementation{
             if (sockets[i].state == CLOSED){
                 // listen state
                 sockets[i].state = LISTEN;
-                dbg(TRANSPORT_CHANNEL, "Socket allocated with ID: %d\n", i);
+                dbg(TRANSPORT_CHANNEL, "[Transport.socket] Socket allocated with ID: %d\n", i);
                 return i; // Return socket ID
             }
         }
-        dbg(TRANSPORT_CHANNEL, "No sockets available\n");
+        dbg(TRANSPORT_CHANNEL, "[Transport.socket] No sockets available\n");
         return NULL_SOCKET; // No Sockets available
     }
 
-    // if (sockets[fd].state == LISTEN){
-    //     call LinkState.send(packet);
-    //     dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
-    // }
+
+    // SYN and ACK 
 
     // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
+
+        dbg(TRANSPORT_CHANNEL, "[Transport.bind] Socket %d current state: %d\n", fd, sockets[fd].state);
 
         if (sockets[fd].state == LISTEN){
 
             addr->addr = TOS_NODE_ID;
             sockets[fd].src = 80; 
-            addr->port = 80; 
+            addr->port = 80;
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
-            return SUCCESS; // Able to bind
+
+            makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, 
+                    PROTOCOL_TCP, 0, (uint8_t*)&sockets[fd], sizeof(socket_store_t));
+            call LinkState.send(sendReq);
+            dbg(TRANSPORT_CHANNEL, "LSP packet sent for socket %d\n", fd);
+
+            return SUCCESS; // Able to bind            
         }
-        dbg(TRANSPORT_CHANNEL, "Unable to bind\n");
+
+        dbg(TRANSPORT_CHANNEL, "[Transport.bind] Unable to bind\n");
         return FAIL; // Unable to bind
     }
 
+
     // Accepts incoming connectivity
     command socket_t Transport.accept(socket_t fd){
+        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d state: %d\n", fd, sockets[fd].state);
+        
         if (sockets[fd].state == LISTEN) {
             // Check if SYN packet is ready to accept
-            if (sockets[fd].state == SYN_RCVD){
+            sockets[fd].state = SYN_RCVD;
+            dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d now waiting for SYN\n", fd);
                 // ESTABLISHED transition 
-                sockets[fd].state = ESTABLISHED; 
-                dbg(TRANSPORT_CHANNEL, "Socket %d accepted connection from %d\n", fd, sockets[fd].dest.addr);
+                // sockets[fd].state = ESTABLISHED; 
+                dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d accepted connection from %d\n", fd, sockets[fd].dest.addr);
                 return fd;
-            }
         }
-        dbg(TRANSPORT_CHANNEL, "Socket %d cannot accept connection (no SYN recieved\n", fd);
+        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved)\n", fd);
         return NULL_SOCKET;
     }
 
     // Send data from buffer through the socket
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen){
-        /* Goal: Take data from a buffer and create TCP packs, 
+        uint16_t write;
+        uint16_t writeLen;
+        uint8_t i;
+        if (sockets[fd].state != ESTABLISHED) {
+            dbg(TRANSPORT_CHANNEL, "Write failed, Socket %d is not established\n", fd);
+            /* Goal: Take data from a buffer and create TCP packs, 
         > Send them over network, handles buffering (and retransmissions)
         */
         return 0;
+        }
+        
+        if (bufflen < SOCKET_BUFFER_SIZE){
+            write = bufflen;
+        }
+        else {
+            writeLen = SOCKET_BUFFER_SIZE;
+        }
+        
+        for (i = 0; i < writeLen; i++) {
+            sockets[fd].sendBuff[i] = buff[i];
+        }
+        return 0;
     }
+
 
     command error_t Transport.receive(pack* package){
         /* Goal: Processes incoming TCP packets
@@ -161,11 +191,21 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
+            uint8_t tcpPayload[SOCKET_BUFFER_SIZE];
+            uint8_t tcpPayloadLength = 0;
 
             if (package->protocol == PROTOCOL_TCP){
                 if (package->dest == TOS_NODE_ID) {
-                    // makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, pingPayload, pingPayloadLength);
-                    // call LinkState.send(sendReq);
+                    // Create TCP acknowledgment payload
+                    tcpPayload[0] = 1;  // ACK flag
+                    tcpPayload[1] = sockets[0].src;  // Source port
+                    tcpPayload[2] = package->src;    // Destination port
+                    tcpPayloadLength = 3;  // Basic TCP header length
+
+                    // Create acknowledgment packet
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, tcpPayload, tcpPayloadLength);
+
+                    call LinkState.send(sendReq);
                     dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
                 } else {
                     dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
@@ -173,6 +213,7 @@ implementation{
                 }
             }
         }
+        return msg;
     }
 
     event void sendTimer.fired(){
