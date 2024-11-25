@@ -1,106 +1,54 @@
 Creating Topo!
-Number of Motes 17
+Number of Motes 9
   1   2   -54.0
-  1   12   -54.0
+  1   3   -54.0
   2   1   -54.0
   2   3   -54.0
-  2   13   -54.0
+  2   5   -54.0
+  3   1   -54.0
   3   2   -54.0
   3   4   -54.0
+  3   5   -54.0
+  3   6   -54.0
   4   3   -54.0
   4   5   -54.0
+  4   6   -54.0
+  4   8   -54.0
+  5   2   -54.0
+  5   3   -54.0
   5   4   -54.0
-  5   6   -54.0
-  6   5   -54.0
-  6   7   -54.0
-  7   6   -54.0
+  5   7   -54.0
+  6   3   -54.0
+  6   4   -54.0
+  7   5   -54.0
   7   8   -54.0
+  8   4   -54.0
   8   7   -54.0
   8   9   -54.0
   9   8   -54.0
-  9   10   -54.0
-  10   9   -54.0
-  10   11   -54.0
-  10   13   -54.0
-  11   10   -54.0
-  11   12   -54.0
-  12   1   -54.0
 Creating noise model for  1
 Creating noise model for  2
-Creating noise model for  12
 Creating noise model for  3
-Creating noise model for  13
-Creating noise model for  4
 Creating noise model for  5
+Creating noise model for  4
 Creating noise model for  6
-Creating noise model for  7
 Creating noise model for  8
+Creating noise model for  7
 Creating noise model for  9
-Creating noise model for  10
-Creating noise model for  11
 Adding Channel command
 Adding Channel transport
-0:6:31.963868264 DEBUG (1): A Command has been Issued.
-0:6:31.963868264 DEBUG (1): Command Type: Client
-0:6:31.963868264 DEBUG (1): SETTING TEST SERVER... 
-0:6:31.963868264 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
-0:6:31.963868264 DEBUG (1): [Transport.bind] Unable to bind
-0:7:53.698243930 DEBUG (13): A Command has been Issued.
-0:7:53.698243930 DEBUG (13): Command Type: Client
-0:7:53.698243930 DEBUG (13): SETTING TEST CLIENT... 
-0:7:53.698243930 DEBUG (13): [Transport.socket] Socket allocated with ID: 0
-0:7:53.698243930 DEBUG (13): [Transport.bind] Unable to bind
-Creating Topo!
-Number of Motes 17
-  1   2   -54.0
-  1   12   -54.0
-  2   1   -54.0
-  2   3   -54.0
-  2   13   -54.0
-  3   2   -54.0
-  3   4   -54.0
-  4   3   -54.0
-  4   5   -54.0
-  5   4   -54.0
-  5   6   -54.0
-  6   5   -54.0
-  6   7   -54.0
-  7   6   -54.0
-  7   8   -54.0
-  8   7   -54.0
-  8   9   -54.0
-  9   8   -54.0
-  9   10   -54.0
-  10   9   -54.0
-  10   11   -54.0
-  10   13   -54.0
-  11   10   -54.0
-  11   12   -54.0
-  12   1   -54.0
-Creating noise model for  1
-Creating noise model for  2
-Creating noise model for  12
-Creating noise model for  3
-Creating noise model for  13
-Creating noise model for  4
-Creating noise model for  5
-Creating noise model for  6
-Creating noise model for  7
-Creating noise model for  8
-Creating noise model for  9
-Creating noise model for  10
-Creating noise model for  11
-Adding Channel command
-Adding Channel transport
-0:6:32.679688616 DEBUG (1): A Command has been Issued.
-0:6:32.679688616 DEBUG (1): Command Type: Client
-0:6:32.679688616 DEBUG (1): SETTING TEST SERVER... 
-0:6:32.679688616 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
-0:6:32.679688616 DEBUG (1): [Transport.bind] Socket 0 current state: 1
-0:6:32.679688616 DEBUG (1): Socket binds to address 1, port 80
-0:7:52.472642343 DEBUG (13): A Command has been Issued.
-0:7:52.472642343 DEBUG (13): Command Type: Client
-0:7:52.472642343 DEBUG (13): SETTING TEST CLIENT... 
-0:7:52.472642343 DEBUG (13): [Transport.socket] Socket allocated with ID: 0
-0:7:52.472642343 DEBUG (13): [Transport.bind] Socket 0 current state: 1
-0:7:52.472642343 DEBUG (13): Socket binds to address 13, port 80
+0:7:45.291000745 DEBUG (1): A Command has been Issued.
+0:7:45.291000745 DEBUG (1): Command Type: Server
+0:7:45.291000745 DEBUG (1): SETTING TEST SERVER... 
+0:7:45.291000745 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
+0:7:45.291000745 DEBUG (1): [Transport.bind] Socket 0 current state: 1
+0:7:45.291000745 DEBUG (1): Socket binds to address 1, port 80
+0:7:45.291000745 DEBUG (1): LSP packet sent for socket 0
+0:7:45.291000745 DEBUG (1): [Transport.accept] Socket 0 cannot accept connection (no SYN recieved
+0:9:20.226471060 DEBUG (4): A Command has been Issued.
+0:9:20.226471060 DEBUG (4): Command Type: Client
+0:9:20.226471060 DEBUG (4): SETTING TEST CLIENT... 
+0:9:20.226471060 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
+0:9:20.226471060 DEBUG (4): [Transport.bind] Socket 0 current state: 1
+0:9:20.226471060 DEBUG (4): Socket binds to address 4, port 80
+0:9:20.226471060 DEBUG (4): LSP packet sent for socket 0

@@ -49,15 +49,14 @@ implementation{
             addr->port = 80;
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
 
-            return SUCCESS; // Able to bind
+            makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, 
+                    PROTOCOL_TCP, 0, (uint8_t*)&sockets[fd], sizeof(socket_store_t));
+            call LinkState.send(sendReq);
+            dbg(TRANSPORT_CHANNEL, "LSP packet sent for socket %d\n", fd);
 
-            // if (sockets[fd].state == LISTEN || seq){
-            //     makePack(&packetInfo, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0);
-            //     call LinkState.send(packet);
-            //     dbg(TRANSPORT_CHANNEL, "Call LSP to socket")
-            // }
-            
+            return SUCCESS; // Able to bind            
         }
+
         dbg(TRANSPORT_CHANNEL, "[Transport.bind] Unable to bind\n");
         return FAIL; // Unable to bind
     }
@@ -74,7 +73,7 @@ implementation{
                 return fd;
             }
         }
-        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved\n", fd);
+        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved)\n", fd);
         return NULL_SOCKET;
     }
 
@@ -188,18 +187,31 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
+            uint8_t tcpPayload[SOCKET_BUFFER_SIZE];
+            uint8_t tcpPayloadLength = 0;
 
             if (package->protocol == PROTOCOL_TCP){
                 if (package->dest == TOS_NODE_ID) {
-                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, pingPayload, pingPayloadLength);
+                    // Create TCP acknowledgment payload
+                    tcpPayload[0] = 1;  // ACK flag
+                    tcpPayload[1] = sockets[0].src;  // Source port
+                    tcpPayload[2] = package->src;    // Destination port
+                    tcpPayloadLength = 3;  // Basic TCP header length
+
+                    // Create acknowledgment packet
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, 
+                            PROTOCOL_TCP, package->seq, tcpPayload, tcpPayloadLength);
+
                     call LinkState.send(sendReq);
-                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
+                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", 
+                        TOS_NODE_ID, package->src);
                 } else {
                     dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
                     call LinkState.send(*package);
                 }
             }
         }
+        return msg;
     }
 
     event void sendTimer.fired(){
