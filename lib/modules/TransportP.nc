@@ -203,12 +203,10 @@ implementation{
                     tcpPayloadLength = 3;  // Basic TCP header length
 
                     // Create acknowledgment packet
-                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, 
-                            PROTOCOL_TCP, package->seq, tcpPayload, tcpPayloadLength);
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, tcpPayload, tcpPayloadLength);
 
                     call LinkState.send(sendReq);
-                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", 
-                        TOS_NODE_ID, package->src);
+                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
                 } else {
                     dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
                     call LinkState.send(*package);
