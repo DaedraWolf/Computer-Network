@@ -107,11 +107,16 @@ implementation{
 
 
     command error_t Transport.receive(pack* package){
-        /* Goal: Processes incoming TCP packets
-        > Transport layer would parse incoming packets, (validate)
-        update socket states or buffers (for handling incoming data)
-        */
-        return 0;
+        pack* p = (pack*)package;
+        socket_store_t* rcvdSocket;
+        
+        if (p->protocol != PROTOCOL_TCP)
+            return FAIL;
+
+        rcvdSocket = (socket_store_t*)p->payload;
+
+
+        return SUCCESS;
     }
 
     command uint16_t Transport.read(socket_t fd, uint8_t *buff, uint16_t bufflen){
@@ -191,22 +196,11 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
-            uint8_t tcpPayload[SOCKET_BUFFER_SIZE];
-            uint8_t tcpPayloadLength = 0;
 
             if (package->protocol == PROTOCOL_TCP){
                 if (package->dest == TOS_NODE_ID) {
-                    // Create TCP acknowledgment payload
-                    tcpPayload[0] = 1;  // ACK flag
-                    tcpPayload[1] = sockets[0].src;  // Source port
-                    tcpPayload[2] = package->src;    // Destination port
-                    tcpPayloadLength = 3;  // Basic TCP header length
-
-                    // Create acknowledgment packet
-                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, package->seq, tcpPayload, tcpPayloadLength);
-
-                    call LinkState.send(sendReq);
                     dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
+                    call Transport.receive(package);
                 } else {
                     dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
                     call LinkState.send(*package);
