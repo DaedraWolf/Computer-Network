@@ -2,6 +2,7 @@
 #define NULL_SOCKET 255
 
 #include "../../includes/socket.h"
+#include "../../includes/tcpPacket.h"
 
 module TransportP{
     provides interface Transport;
