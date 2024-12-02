@@ -12,6 +12,7 @@ enum tcp_flag{
 typedef struct tcp_pack{
   enum tcp_flag flag;
   uint8_t* data;
+  uint8_t seq;
 }tcp_pack;
 
 #endif
