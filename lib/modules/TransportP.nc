@@ -129,15 +129,18 @@ implementation{
         > 3-way handshake (sending SYN and wait for SYN-ACK)
         > Set state to SYN_SENT during handshake
         */ 
-        tcp_pack tcp_packet;
+        tcp_pack synPack;
     
         // Initial SYN
-        tcp_packet.flag = SYN;
-        tcp_packet.data = (uint8_t*)&time; // Current time for SYN
+        synPack.flag = SYN;
+        synPack.data = NULL; // No data in SYN pack
         
-        makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&tcp_packet, sizeof(tcp_pack));
-                
+        sockets[fd].dest = *addr; // Does nothing right now
+
+        synPack.flag = SYN;
         sockets[fd].state = SYN_SENT;
+        makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
+                
         call LinkState.send(sendReq);
         // Start timer for retransmission
     }
@@ -203,48 +206,57 @@ implementation{
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
     if (len == sizeof(pack)) {
         pack* package = (pack*)payload;
-        tcp_pack* tcp_packet = (tcp_pack*)package->payload;
+        tcp_pack* synPack = (tcp_pack*)package->payload;
         socket_t fd;
         uint8_t i;
         tcp_pack response;
         
         // Find the appropriate socket for this connection
+        /* USE getSocket after merge*/
         for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
-            if(package->dest == TOS_NODE_ID) {
+            if(sockets[i].src == package->dest) {
                 fd = i;  // Found matching socket
                 break;
             }
         }
 
-        switch(tcp_packet->flag) {
+        // Server-sided from Transport.connect
+        switch(synPack->flag) {
             case SYN:
                 if (sockets[fd].state == LISTEN) {
-                    // Create SYN-ACK response
-                    tcp_pack response;
-                    response.flag = SYN_ACK;
-                    response.data = tcp_packet->data; // Echo timestamp
-                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&response, sizeof(tcp_pack));
+
                     sockets[fd].state = SYN_RCVD;
+                    // Create SYN-ACK response
+                    response.flag = SYN_ACK;
+                    // Echo timestamp (If unnecessary remove)
+                    response.data = synPack->data; 
+
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&response, sizeof(tcp_pack));
                     call LinkState.send(sendReq);
+
+                    dbg(TRANSPORT_CHANNEL, "SYN received... next SYN_ACK");
                 }
                 break;
-                
-            case SYN_ACK:
-                if (sockets[fd].state == SYN_SENT) {
-                    // Send ACK to complete handshake
-                    tcp_pack ack;
-                    ack.flag = ACK;
-                    ack.data = NULL; // No data needed for ACK
-                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&ack, sizeof(tcp_pack));
-                    sockets[fd].state = ESTABLISHED;
-                    call LinkState.send(sendReq);
-                }
-                break;
+            /* WE DONT NEED THIS DUE TO CLIENT SIDE IS DOING THE SYN_ACK*/    
+            // case SYN_ACK:
+            //     if (tcp_packet->flag == SYN_ACK && sockets[fd].state == SYN_SENT) {
+            //         // Send ACK to complete handshake
+            //         ack.flag = ACK;
+            //         ack.data = NULL; // No data needed for ACK
+            //         makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&ack, sizeof(tcp_pack));
+            //         sockets[fd].state = ESTABLISHED;
+            //         call LinkState.send(sendReq);
+
+            //         dbg(TRANSPORT_CHANNEL, "SYN-ACK received... next ACK");
+            //     }
+            //     break;
                 
             case ACK:
                 if (sockets[fd].state == SYN_RCVD) {
-                    // Connection established
+
                     sockets[fd].state = ESTABLISHED;
+
+                    dbg(TRANSPORT_CHANNEL, "ACK received, ESTABLISHED connection");
                 }
                 break;
         }
