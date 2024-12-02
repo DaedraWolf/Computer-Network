@@ -16,15 +16,6 @@ enum socket_state{
     SYN_RCVD,
 };
 
-// TCP Flags
-enum tcp_flag{
-    DATA,
-    ACK,
-    SYN,
-    SYN_ACK,
-    FIN
-};
-
 
 typedef nx_uint8_t nx_socket_port_t;
 typedef uint8_t socket_port_t;
@@ -41,7 +32,6 @@ typedef uint8_t socket_t;
 
 // State of a socket. 
 typedef struct socket_store_t{
-    enum tcp_flag flag;
     enum socket_state state;
     socket_port_t src;
     socket_addr_t dest;
