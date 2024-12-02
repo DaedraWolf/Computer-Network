@@ -19,6 +19,7 @@ implementation{
     pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
+    socket_t getSocket(enum socket_state state, uint16_t node);
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -109,13 +110,24 @@ implementation{
 
     command error_t Transport.receive(pack* package){
         pack* p = (pack*)package;
-        socket_store_t* rcvdSocket;
+        tcp_pack* rcvdPayload;
         
         if (p->protocol != PROTOCOL_TCP)
             return FAIL;
 
-        rcvdSocket = (socket_store_t*)p->payload;
+        rcvdPayload = (tcp_pack*)p->payload;
 
+        if (rcvdPayload->flag == DATA) {
+            
+        } else if (rcvdPayload->flag == ACK) {
+            
+        } else if (rcvdPayload->flag == SYN) {
+            
+        } else if (rcvdPayload->flag == SYN_ACK) {
+            
+        } else if (rcvdPayload->flag == FIN) {
+            
+        }
 
         return SUCCESS;
     }
@@ -224,5 +236,13 @@ implementation{
         Package->seq = seq; // Flooding Header
         Package->protocol = protocol; // Flooding Header
         memcpy(Package->payload, payload, length);
+    }
+
+    socket_t getSocket(enum socket_state state, uint16_t node) {
+        uint16_t i;
+        for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+            if(sockets[i].state == state && sockets[i].dest.addr == i)
+                return i;
+        }
     }
 }
