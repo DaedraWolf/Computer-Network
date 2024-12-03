@@ -26,6 +26,7 @@ implementation{
     socket_t getSocket(uint16_t node);
     void sendData(socket_t fd);
     error_t receiveData(socket_t fd, uint8_t seq, uint8_t* data);
+    void sendListen(socket_t fd);
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -240,10 +241,13 @@ implementation{
     }
 
     command error_t Transport.listen(socket_t fd){
-        /* Goal: socket into listening state, waiting for incoming connections
-        > Transitions socket state to LISTEN 
-        */
-        return 0;
+        socket_store_t *currentSocket = &sockets[fd];
+
+        if (currentSocket->state != CLOSED)
+            return FAIL;
+        
+        currentSocket->state = LISTEN;
+        return SUCCESS;
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
@@ -268,9 +272,20 @@ implementation{
 
         for (i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
             currentSocket = sockets[i];
-            if (currentSocket.state == ESTABLISHED && currentSocket.src == TOS_NODE_ID) {
-                sendData(i);
+            switch (currentSocket.state){
+
+                case ESTABLISHED:
+                    if (currentSocket.src == TOS_NODE_ID) {
+                        sendData(i);
+                    }
+                    break;
+
+                case LISTEN:
+                    sendListen(i);
+                    break;
+                    
             }
+            
         }
     }
 
@@ -339,5 +354,16 @@ implementation{
             currentSocket->lastRcvd++;
             
         return SUCCESS;
+    }
+
+    void sendListen(socket_t fd) {
+        socket_store_t *currentSocket = &sockets[fd];
+        tcp_pack *listenPack;
+        pack package;
+
+        listenPack->flag = LISTEN;
+
+        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)listenPack, 1);
+        call LinkState.send(package);
     }
 }
