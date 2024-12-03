@@ -282,7 +282,7 @@ implementation{
         call LinkState.send(sendReq);
         
         // Start retransmission timer
-        call sendTimer.startOneShot(SOCKET_BUFFER_SIZE);
+        call sendTimer.startOneShot(2000); // 2 sec
         
         dbg(TRANSPORT_CHANNEL, "Socket %d: Sending SYN packet\n", fd);
     }
