@@ -1,4 +1,6 @@
 interface LinkState{
     command void advertise();
-    command uint16_t getNextHop(uint16_t dest);
+    command void printRouteTable();
+    command void send(pack package);
+    command void ping(uint16_t destination);
 }

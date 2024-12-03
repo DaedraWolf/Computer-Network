@@ -1,4 +1,5 @@
 #define LSA_REFRESH_INTERVAL 10000
+#define LSA_MINIMUM_RECEIVED 3
 
 module LinkStateP{
     provides interface LinkState;
@@ -30,6 +31,9 @@ implementation {
     uint8_t payloadLength = sizeof(linkStatePayload);
     pack sendReq;
 
+    uint8_t* pingPayload = "";
+    uint8_t pingPayloadLength = sizeof(pingPayload);
+
     uint16_t neighborGraph[MAX_NEIGHBORS][MAX_NEIGHBORS];
 
     uint8_t* tempPayload = ""; // just for testing
@@ -47,16 +51,47 @@ implementation {
         call LSATimer.startPeriodic(LSA_REFRESH_INTERVAL);
     }
 
-    command uint16_t LinkState.getNextHop(uint16_t dest) {
-        return call Dijkstra.getNextHop(dest);
+    command void LinkState.printRouteTable() {
+        uint8_t i;
+
+        for (i = 0; i < MAX_NEIGHBORS; i++) {
+            dbg(ROUTING_CHANNEL, "%d -> %d\n", i, call Dijkstra.getNextHop(i));
+        }
+    }
+    
+    command void LinkState.send(pack package) {
+        call SimpleSend.send(package, call Dijkstra.getNextHop(package.dest));
+    }
+
+    command void LinkState.ping(uint16_t destination) {
+        makePack(&sendReq, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_LSPING, seqNum, pingPayload, pingPayloadLength);
+        call LinkState.send(sendReq);
     }
 
     // handles recieved LSA packets
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
+
             if (package->protocol == PROTOCOL_LINKSTATE) {
                 dbg(ROUTING_CHANNEL, "LSA Package Received at Node %d\n", TOS_NODE_ID);
+                return msg;
+            }
+
+            if (package->dest == TOS_NODE_ID){
+                if (package->protocol == PROTOCOL_LSPING) {
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_LSPINGREPLY, package->seq, pingPayload, pingPayloadLength);
+                    call LinkState.send(sendReq);
+                    dbg(ROUTING_CHANNEL, "Ping received at %d from %d. Sending Reply.\n", TOS_NODE_ID, package->src);
+                } else if (package->protocol == PROTOCOL_LSPINGREPLY) {
+                    dbg(ROUTING_CHANNEL, "Ping reply received at %d from %d.\n", TOS_NODE_ID, package->src);
+                }
+                return msg;
+            }
+
+            if (package->protocol == PROTOCOL_LSPING || package->protocol == PROTOCOL_LSPINGREPLY){
+                dbg(ROUTING_CHANNEL, "Forwarding LS Ping/Reply.\n");
+                call LinkState.send(*package);
             }
         }
     }
@@ -71,13 +106,13 @@ implementation {
 
         // tempGraph represents 1D array that represents connectivity between nodes
         uint8_t* tempGraph = call Flooding.getNeighborGraph();
-        dbg(ROUTING_CHANNEL, "Printing Neighbor Graph\n");
+        // dbg(ROUTING_CHANNEL, "Printing Neighbor Graph\n");
 
         // check if there is enough topology info is available
         for (i = 0; i < MAX_NEIGHBORS; i++) {
             for (j = 0; j < MAX_NEIGHBORS; j++) {
                 neighborGraph[i][j] = tempGraph[i * MAX_NEIGHBORS + j];
-                dbg(ROUTING_CHANNEL, "Neighbors[%d][%d] = %d\n", i, j, tempGraph[i * MAX_NEIGHBORS + j]);
+                // dbg(ROUTING_CHANNEL, "Neighbors[%d][%d] = %d\n", i, j, tempGraph[i * MAX_NEIGHBORS + j]);
             }
         }
         
@@ -130,15 +165,10 @@ implementation {
 
     // calculates routing table using dijkstra
     void loadDistanceTable() {
-        uint8_t i;
-
         // run dijkstra algorithm on neighbor graph
         call Dijkstra.make(neighborGraph, TOS_NODE_ID);
-
-        dbg(ROUTING_CHANNEL, "Printing routing table\n");
-        for (i = 0; i < MAX_NEIGHBORS; i++) {
-            dbg(ROUTING_CHANNEL, "%d -> %d\n", i, call Dijkstra.getNextHop(i));
-        }
+        
+        // call LinkState.printRouteTable();
     }
 
     // update neighbor graph with new info
@@ -169,6 +199,6 @@ implementation {
             }
         }
         // returns true if at least 5 nodes have neighbors
-        return (receivedCount >= 5);
+        return (receivedCount >= LSA_MINIMUM_RECEIVED);
     }
 }

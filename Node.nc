@@ -28,10 +28,14 @@ module Node{
    uses interface LinkState;
 
    uses interface TCPSend;
+   uses interface Transport;
 }
 
 implementation{
    pack sendPackage;
+
+   socket_t serverSocket;
+   socket_t clientSocket;
 
    // Prototypes
    void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t Protocol, uint16_t seq, uint8_t *payload, uint8_t length);
@@ -40,6 +44,8 @@ implementation{
       call AMControl.start();
 
       dbg(GENERAL_CHANNEL, "Booted\n");
+      
+      call LinkState.advertise();
    }
 
    event void AMControl.startDone(error_t err){
@@ -73,15 +79,24 @@ implementation{
 
    event void CommandHandler.printNeighbors(){}
 
-   event void CommandHandler.printRouteTable(){}
+   event void CommandHandler.printRouteTable(){
+      dbg(GENERAL_CHANNEL, "PRINTING LINKSTATE ROUTE TABLE... \n");
+      call LinkState.printRouteTable();
+   }
 
    event void CommandHandler.printLinkState(){}
 
    event void CommandHandler.printDistanceVector(){}
 
-   event void CommandHandler.setTestServer(){}
+   event void CommandHandler.setTestServer(){
+      dbg(TRANSPORT_CHANNEL, "SETTING TEST SERVER... \n");
+      call Transport.listen( call Transport.socket() );
+   }
 
-   event void CommandHandler.setTestClient(){}
+   event void CommandHandler.setTestClient(){
+      dbg(TRANSPORT_CHANNEL, "SETTING TEST CLIENT... \n");
+      call Transport.connect( call Transport.socket(), 0 );
+   }
 
    event void CommandHandler.setAppServer(){}
 
@@ -101,6 +116,11 @@ implementation{
    event void CommandHandler.linkStateAdvertise(){
       dbg(GENERAL_CHANNEL, "LINKSTATE ADVERTISE EVENT \n");
       call LinkState.advertise();
+   }
+
+   event void CommandHandler.linkStatePing(uint16_t dest){
+      dbg(GENERAL_CHANNEL, "LINKSTATE PING EVENT \n");
+      call LinkState.ping(dest);
    }
    //end of new additions
 

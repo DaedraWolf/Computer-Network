@@ -14,4 +14,5 @@ interface CommandHandler{
    event void flood(uint16_t dest);
    event void discoverNeighbors();
    event void linkStateAdvertise();
+   event void linkStatePing(uint16_t dest);
 }

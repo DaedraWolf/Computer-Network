@@ -22,6 +22,7 @@ enum{
 	CMD_FLOOD=7,
 	CMD_NEIGHBOR_DISCOVERY=8,
 	CMD_LINKSTATE_AD=10,
+	CMD_LSPING=11,
 	// end of new additions
 
 	CMD_ERROR=9

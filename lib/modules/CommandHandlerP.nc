@@ -74,7 +74,7 @@ implementation{
                 break;
 
             case CMD_TEST_SERVER:
-                dbg(COMMAND_CHANNEL, "Command Type: Client\n");
+                dbg(COMMAND_CHANNEL, "Command Type: Server\n");
                 signal CommandHandler.setTestServer();
                 break;
 
@@ -92,6 +92,11 @@ implementation{
             case CMD_LINKSTATE_AD:
                 dbg(COMMAND_CHANNEL, "Command Type: LinkState Advertise\n");
                 signal CommandHandler.linkStateAdvertise();
+                break;
+
+            case CMD_LSPING:
+                dbg(COMMAND_CHANNEL, "Command Type: LinkState Ping\n");
+                signal CommandHandler.linkStatePing(buff[0]);
                 break;
             
             // End of new additions
