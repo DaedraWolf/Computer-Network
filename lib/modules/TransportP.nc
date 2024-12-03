@@ -21,8 +21,8 @@ implementation{
     pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
-    // void queuePacket(tcp_pack* packet);
-
+    socket_t getSocket(uint16_t node);
+    
     // Allocates new socket(s)
     command socket_t Transport.socket(){
         uint16_t i;
@@ -110,11 +110,32 @@ implementation{
 
 
     command error_t Transport.receive(pack* package){
-        /* Goal: Processes incoming TCP packets
-        > Transport layer would parse incoming packets, (validate)
-        update socket states or buffers (for handling incoming data)
-        */
-        return 0;
+        pack* p = (pack*)package;
+        tcp_pack* rcvdPayload;
+        socket_t fd;
+        
+        if (p->protocol != PROTOCOL_TCP)
+            return FAIL;
+
+        rcvdPayload = (tcp_pack*)p->payload;
+        fd = getSocket(p->src);
+
+        if (fd == NULL_SOCKET)
+            return FAIL;
+
+        if (rcvdPayload->flag == DATA) {
+            
+        } else if (rcvdPayload->flag == ACK) {
+            
+        } else if (rcvdPayload->flag == SYN) {
+            
+        } else if (rcvdPayload->flag == SYN_ACK) {
+            
+        } else if (rcvdPayload->flag == FIN) {
+            
+        }
+
+        return SUCCESS;
     }
 
     command uint16_t Transport.read(socket_t fd, uint8_t *buff, uint16_t bufflen){
@@ -281,5 +302,15 @@ implementation{
         Package->seq = seq; // Flooding Header
         Package->protocol = protocol; // Flooding Header
         memcpy(Package->payload, payload, length);
+    }
+
+    // returns the fd of the socket that has to do with the given node
+    socket_t getSocket(uint16_t node) {
+        uint16_t i;
+        for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+            if(sockets[i].dest.addr == node || sockets[i].src == node)
+                return i;
+        }
+        return NULL_SOCKET;
     }
 }
