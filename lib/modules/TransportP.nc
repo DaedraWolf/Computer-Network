@@ -15,12 +15,13 @@ module TransportP{
 implementation{
     // Manage multiple sockets 
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
-    uint8_t responseData[SOCKET_BUFFER_SIZE];
+    // uint8_t responseData[SOCKET_BUFFER_SIZE];
+    void sendACK();
     uint16_t destination;
     pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
-    void queuePacket(tcp_pack* packet);
+    // void queuePacket(tcp_pack* packet);
 
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -262,13 +263,16 @@ implementation{
         }
     }
     return msg;
-}
+    }
 
     event void sendTimer.fired(){
         // Goal: Timer event for retranmission (previous tasks) 
         uint16_t i;
     }
 
+    void sendACK(){
+        
+    }
     // Constructs a TCP packet, encapsulate data with headers
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
         Package->src = src; // Link Layer Head
