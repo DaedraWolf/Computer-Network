@@ -163,12 +163,13 @@ implementation{
         
         sockets[fd].dest = *addr; // Does nothing right now
 
+        //Replace all with new helper function sendSYN()
         synPack.flag = SYN;
         sockets[fd].state = SYN_SENT;
         makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
                 
         call LinkState.send(sendReq);
-        // Start timer for retransmission
+        // ^^^^^^
     }
 
     command error_t Transport.close(socket_t fd){
