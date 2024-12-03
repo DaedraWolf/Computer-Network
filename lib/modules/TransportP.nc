@@ -1,5 +1,6 @@
 #define MAX_NUM_OF_SOCKETS 1
 #define NULL_SOCKET 255
+#define SLIDING_WINDOW_SIZE 1
 
 #include "../../includes/socket.h"
 #include "../../includes/tcpPacket.h"
@@ -17,9 +18,11 @@ implementation{
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     uint16_t destination;
     pack sendReq;
+    uint16_t seqNum;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     socket_t getSocket(uint16_t node);
+    void sendData(socket_t fd);
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -228,9 +231,16 @@ implementation{
         return msg;
     }
 
-    event void sendTimer.fired(){
-        // Goal: Timer event for retranmission (previous tasks) 
+    event void sendTimer.fired(){ 
         uint16_t i;
+        socket_store_t currentSocket;
+
+        for (i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+            currentSocket = sockets[i];
+            if (currentSocket.state == ESTABLISHED && currentSocket.src == TOS_NODE_ID) {
+                sendData(i);
+            }
+        }
     }
 
     // Constructs a TCP packet, encapsulate data with headers
@@ -251,5 +261,24 @@ implementation{
                 return i;
         }
         return NULL_SOCKET;
+    }
+
+    void sendData(socket_t fd) {
+        socket_store_t *currentSocket = &sockets[fd];
+        tcp_pack *dataPack;
+        pack package;
+
+        if (currentSocket->lastSent >= currentSocket->lastAck + SLIDING_WINDOW_SIZE) {
+            dataPack->seq = currentSocket->lastAck + 1;
+        } else {
+            dataPack->seq = ++currentSocket->lastSent;
+        }
+
+        dataPack->flag = DATA;
+        dataPack->data = currentSocket->sendBuff[dataPack->seq];
+
+        // may need to change length in the future, depending on how much data is being sent
+        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)dataPack, 1);
+        call LinkState.send(package);
     }
 }

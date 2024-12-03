@@ -65,7 +65,7 @@ implementation {
                     //drop
                 } else {
                     dbg(TRANSPORT_CHANNEL, "Messaged Received: %d", package->payload);
-                    receivedPacks[package->seq] = package->payload;
+                    // receivedPacks[package->seq] = package->payload;
                     if (package->seq == receiveFrame)
                         receiveFrame++;
                 }
@@ -90,11 +90,11 @@ implementation {
 
     void sendPack(uint16_t seqNum){
         makePack(&sendReq, TOS_NODE_ID, destination, MAX_TTL, PROTOCOL_TCP, seqNum, sendPayload, sendLength); 
-        call SimpleSend.send(sendReq, call LinkState.getNextHop(destination));
+        // call SimpleSend.send(sendReq, call Dijkstra.getNextHop(destination));
         // dbg(GENERAL_CHANNEL, "Node %d broadcasting package; Sequence number: %d\n", TOS_NODE_ID, sequenceNum);
     }
 
     void forwardPack(pack* Package){
-        call SimpleSend.send(*Package, call LinkState.getNextHop(Package->dest));
+        // call SimpleSend.send(*Package, call Dijkstra.getNextHop(Package->dest));
     }
 }
