@@ -19,7 +19,7 @@ implementation{
     pack sendReq;
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
-    socket_t getSocket(enum socket_state state, uint16_t node);
+    socket_t getSocket(uint16_t node);
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -111,11 +111,16 @@ implementation{
     command error_t Transport.receive(pack* package){
         pack* p = (pack*)package;
         tcp_pack* rcvdPayload;
+        socket_t fd;
         
         if (p->protocol != PROTOCOL_TCP)
             return FAIL;
 
         rcvdPayload = (tcp_pack*)p->payload;
+        fd = getSocket(p->src);
+
+        if (fd == NULL_SOCKET)
+            return FAIL;
 
         if (rcvdPayload->flag == DATA) {
             
@@ -238,11 +243,12 @@ implementation{
         memcpy(Package->payload, payload, length);
     }
 
-    socket_t getSocket(enum socket_state state, uint16_t node) {
+    socket_t getSocket(uint16_t src, uint16_t dest) {
         uint16_t i;
         for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
-            if(sockets[i].state == state && sockets[i].dest.addr == i)
+            if(sockets[i].dest.addr == src && sockets[i].port == dest)
                 return i;
         }
+        return NULL_SOCKET;
     }
 }
