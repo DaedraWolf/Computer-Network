@@ -23,6 +23,7 @@ implementation{
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     socket_t getSocket(uint16_t node);
     void sendData(socket_t fd);
+    error_t receiveData(socket_t fd, uint8_t seq, uint8_t* data);
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -280,5 +281,20 @@ implementation{
         // may need to change length in the future, depending on how much data is being sent
         makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)dataPack, 1);
         call LinkState.send(package);
+    }
+
+    error_t receiveData(socket_t fd, uint8_t seq, uint8_t* data) {
+        socket_store_t *currentSocket = &sockets[fd];
+        uint8_t lastRcvd = currentSocket->lastRcvd;
+
+        if (seq <= lastRcvd || seq > lastRcvd + SLIDING_WINDOW_SIZE) {
+           return FAIL;
+        }
+
+        currentSocket->rcvdBuff[seq] = data;
+        if (seq == lastRcvd + 1)
+            currentSocket->lastRcvd++;
+            
+        return SUCCESS;
     }
 }
