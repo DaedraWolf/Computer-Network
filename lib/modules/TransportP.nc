@@ -51,8 +51,7 @@ implementation{
             addr->port = 80;
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
 
-            makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, 
-                    PROTOCOL_TCP, 0, (uint8_t*)&sockets[fd], sizeof(socket_store_t));
+            makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&sockets[fd], sizeof(socket_store_t));
             call LinkState.send(sendReq);
             dbg(TRANSPORT_CHANNEL, "LSP packet sent for socket %d\n", fd);
 
@@ -150,7 +149,20 @@ implementation{
         > 3-way handshake (sending SYN and wait for SYN-ACK)
         > Set state to SYN_SENT during handshake
         */ 
-        return 0;
+        tcp_pack synPack;
+    
+        // Initial SYN
+        synPack.flag = SYN;
+        synPack.data = NULL; // No data in SYN pack
+        
+        sockets[fd].dest = *addr; // Does nothing right now
+
+        synPack.flag = SYN;
+        sockets[fd].state = SYN_SENT;
+        makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
+                
+        call LinkState.send(sendReq);
+        // Start timer for retransmission
     }
 
     command error_t Transport.close(socket_t fd){
@@ -212,21 +224,65 @@ implementation{
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
-        if (len == sizeof(pack)) {
-            pack* package = (pack*)payload;
-
-            if (package->protocol == PROTOCOL_TCP){
-                if (package->dest == TOS_NODE_ID) {
-                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
-                    call Transport.receive(package);
-                } else {
-                    dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
-                    call LinkState.send(*package);
-                }
+    if (len == sizeof(pack)) {
+        pack* package = (pack*)payload;
+        tcp_pack* synPack = (tcp_pack*)package->payload;
+        socket_t fd;
+        uint8_t i;
+        tcp_pack response;
+        
+        // Find the appropriate socket for this connection
+        /* USE getSocket after merge*/
+        for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+            if(sockets[i].src == package->dest) {
+                fd = i;  // Found matching socket
+                break;
             }
         }
-        return msg;
+
+        // Server-sided from Transport.connect
+        switch(synPack->flag) {
+            case SYN:
+                if (sockets[fd].state == LISTEN) {
+
+                    sockets[fd].state = SYN_RCVD;
+                    // Create SYN-ACK response
+                    response.flag = SYN_ACK;
+                    // Echo timestamp (If unnecessary remove)
+                    response.data = synPack->data; 
+
+                    makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&response, sizeof(tcp_pack));
+                    call LinkState.send(sendReq);
+
+                    dbg(TRANSPORT_CHANNEL, "SYN received... next SYN_ACK");
+                }
+                break;
+            /* WE DONT NEED THIS DUE TO CLIENT SIDE IS DOING THE SYN_ACK*/    
+            // case SYN_ACK:
+            //     if (tcp_packet->flag == SYN_ACK && sockets[fd].state == SYN_SENT) {
+            //         // Send ACK to complete handshake
+            //         ack.flag = ACK;
+            //         ack.data = NULL; // No data needed for ACK
+            //         makePack(&sendReq, TOS_NODE_ID, package->src, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&ack, sizeof(tcp_pack));
+            //         sockets[fd].state = ESTABLISHED;
+            //         call LinkState.send(sendReq);
+
+            //         dbg(TRANSPORT_CHANNEL, "SYN-ACK received... next ACK");
+            //     }
+            //     break;
+                
+            case ACK:
+                if (sockets[fd].state == SYN_RCVD) {
+
+                    sockets[fd].state = ESTABLISHED;
+
+                    dbg(TRANSPORT_CHANNEL, "ACK received, ESTABLISHED connection");
+                }
+                break;
+        }
     }
+    return msg;
+}
 
     event void sendTimer.fired(){
         // Goal: Timer event for retranmission (previous tasks) 
