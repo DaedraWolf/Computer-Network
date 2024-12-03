@@ -213,10 +213,30 @@ implementation{
     }
 
     command error_t Transport.release(socket_t fd){
-        /* Goal: Forces hard close on socket
-        > Terminates connection abruptly
-        */
-        return 0;
+        socket_store_t *currentSocket = &sockets[fd];
+
+        if (currentSocket->state == CLOSED)
+            return SUCCESS;
+
+        currentSocket->state = CLOSED;
+
+        memset(currentSocket->sendBuff, 0, SOCKET_BUFFER_SIZE);
+        memset(currentSocket->rcvdBuff, 0, SOCKET_BUFFER_SIZE);
+
+        currentSocket->lastWritten = 0;
+        currentSocket->lastAck = 0;
+        currentSocket->lastSent = 0;
+        currentSocket->lastRead = 0;
+        currentSocket->lastRcvd = 0;
+        currentSocket->nextExpected = 0;
+        currentSocket->RTT = 0;
+        currentSocket->effectiveWindow = 0;
+
+        currentSocket->src = 0;
+        currentSocket->dest.port = 0;
+        currentSocket->dest.addr = 0;
+
+        return SUCCESS;
     }
 
     command error_t Transport.listen(socket_t fd){
