@@ -88,28 +88,18 @@ implementation{
 
     // Send data from buffer through the socket
     command uint16_t Transport.write(socket_t fd, uint8_t *buff, uint16_t bufflen){
-        uint16_t write;
-        uint16_t writeLen;
-        uint8_t i;
-        if (sockets[fd].state != ESTABLISHED) {
-            dbg(TRANSPORT_CHANNEL, "Write failed, Socket %d is not established\n", fd);
-            /* Goal: Take data from a buffer and create TCP packs, 
-        > Send them over network, handles buffering (and retransmissions)
-        */
-        return 0;
+        socket_store_t *currentSocket = &sockets[getSocket(fd)];
+        uint16_t combinedData = 0;
+        uint16_t i;
+
+        for (i = 0; i < bufflen; i++) {
+            currentSocket->sendBuff[i] = buff[i];
+
+            combinedData <<= 8; //8 is the size of uint8_t
+            combinedData += buff[i];
         }
-        
-        if (bufflen < SOCKET_BUFFER_SIZE){
-            write = bufflen;
-        }
-        else {
-            writeLen = SOCKET_BUFFER_SIZE;
-        }
-        
-        for (i = 0; i < writeLen; i++) {
-            sockets[fd].sendBuff[i] = buff[i];
-        }
-        return 0;
+
+        return combinedData;
     }
 
 
@@ -143,11 +133,18 @@ implementation{
     }
 
     command uint16_t Transport.read(socket_t fd, uint8_t *buff, uint16_t bufflen){
-        /* Goal: Reads data from a socket into a buffer
-        > fetches recived data from socket's recieve buffer,
-        processes incoming data
-        */
-        return 0;
+        socket_store_t currentSocket = sockets[getSocket(fd)];
+        uint16_t combinedData = 0;
+        uint16_t i;
+
+        for (i = 0; i < bufflen; i++) {
+            buff[i] = currentSocket.rcvdBuff[i];
+
+            combinedData <<= 8; //8 is the size of uint8_t
+            combinedData += buff[i];
+        }
+
+        return combinedData;
     }
 
     command error_t Transport.connect(socket_t fd, socket_addr_t * addr){
