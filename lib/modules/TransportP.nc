@@ -243,10 +243,11 @@ implementation{
         memcpy(Package->payload, payload, length);
     }
 
-    socket_t getSocket(uint16_t src, uint16_t dest) {
+    // returns the fd of the socket that has to do with the given node
+    socket_t getSocket(uint16_t node) {
         uint16_t i;
         for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
-            if(sockets[i].dest.addr == src && sockets[i].port == dest)
+            if(sockets[i].dest.addr == node || sockets[i].src == node)
                 return i;
         }
         return NULL_SOCKET;
