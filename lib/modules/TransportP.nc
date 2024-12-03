@@ -290,7 +290,6 @@ implementation{
 
         if (synPack == NULL || synPack->flag != SYN) {
             dbg(TRANSPORT_CHANNEL, "Invalid SYN packet received\n");
-            return msg;
         }
 
         makePack(&forwardPacket, src, dest, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)synPack, sizeof(tcp_pack));
