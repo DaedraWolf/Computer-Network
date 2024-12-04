@@ -18,7 +18,7 @@ implementation{
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     // uint8_t responseData[SOCKET_BUFFER_SIZE];
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack);
-    void sendSyn(socket_t fd, socket_addr_t* addr);
+    void sendSyn(uint16_t addr);
     void sendSynAck(socket_t fd);
     void sendACK();
     uint16_t destination;
@@ -281,7 +281,7 @@ implementation{
                     break;
 
                 case LISTEN:
-                    sendListen(i);
+                    sendSyn(i);
                     break;
                     
             }
@@ -289,16 +289,16 @@ implementation{
         }
     }
 
-    void sendSyn(socket_t fd, socket_addr_t* addr){
+    void sendSyn(uint16_t addr){
         tcp_pack synPacket;
         pack synPack;
 
         synPacket.flag = SYN;
         
-        makePack(&synPack, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&synPacket, sizeof(tcp_pack));
+        makePack(&synPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&synPacket, sizeof(tcp_pack));
         call LinkState.send(synPack);
         
-        dbg(TRANSPORT_CHANNEL, "Socket %d: Sending SYN packet\n", fd);
+        dbg(TRANSPORT_CHANNEL, "Socket %d: Sending SYN packet\n", addr);
     }
         
     // void sendSYNACK(){
