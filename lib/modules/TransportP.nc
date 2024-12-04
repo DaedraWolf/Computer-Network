@@ -26,7 +26,6 @@ implementation{
     socket_t getSocket(uint16_t node);
     void sendData(socket_t fd);
     error_t receiveData(socket_t fd, uint8_t seq, uint8_t* data);
-    void sendListen(socket_t fd);
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -354,16 +353,5 @@ implementation{
             currentSocket->lastRcvd++;
             
         return SUCCESS;
-    }
-
-    void sendListen(socket_t fd) {
-        socket_store_t *currentSocket = &sockets[fd];
-        tcp_pack *listenPack;
-        pack package;
-
-        listenPack->flag = LISTEN;
-
-        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)listenPack, 1);
-        call LinkState.send(package);
     }
 }
