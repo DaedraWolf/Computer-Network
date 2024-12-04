@@ -145,7 +145,7 @@ implementation{
                 break;
 
             case FIN:
-                // dbg(TRANSPORT_CHANNEL)
+                dbg(TRANSPORT_CHANNEL, "Received FIN packet, sending ACK\n");
                 break;
 
         }
