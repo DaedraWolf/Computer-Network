@@ -298,6 +298,16 @@ implementation{
             currentSocket = sockets[i];
 
             switch (currentSocket.state){
+                
+                case SYN_SENT:
+                    // Retransmit SYN if waiting
+                    sendSyn(currentSocket.dest.addr);
+                    break;
+
+                case SYN_RCVD:
+                    // Retransmit SYN_ACK if waiting
+                    sendSyn(currentSocket.dest.addr);
+                    break;
 
                 case ESTABLISHED:
                     if (currentSocket.src == TOS_NODE_ID) {
