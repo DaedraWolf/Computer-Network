@@ -1,6 +1,8 @@
 #define MAX_NUM_OF_SOCKETS 1
 #define NULL_SOCKET 255
 #define SLIDING_WINDOW_SIZE 1
+#define TCP_TIMER_LENGTH 1000
+#define TEST_SERVER_NODE 1
 
 #include "../../includes/socket.h"
 #include "../../includes/tcpPacket.h"
@@ -21,6 +23,7 @@ implementation{
     void sendSyn(uint16_t addr);
     void sendSynAck(uint16_t addr);
     void sendAck(uint16_t addr);
+    void startTimer();
     uint16_t destination;
     pack sendReq;
     uint16_t seqNum;
@@ -29,6 +32,10 @@ implementation{
     socket_t getSocket(uint16_t node);
     void sendData(socket_t fd);
     error_t receiveData(socket_t fd, uint8_t seq, uint8_t* data);
+
+    command void Transport.startTimer() {
+        call sendTimer.startPeriodic(TCP_TIMER_LENGTH);
+    }
     
     // Allocates new socket(s)
     command socket_t Transport.socket(){
@@ -167,20 +174,22 @@ implementation{
         > Set state to SYN_SENT during handshake
         */ 
         tcp_pack synPack;
+        pack package;
     
         // Initial SYN
         synPack.flag = SYN;
         synPack.data = NULL; // No data in SYN pack
-        
-        sockets[fd].dest = *addr; // Does nothing right now
+        sockets[fd].dest.addr = TEST_SERVER_NODE;
 
         //Replace all with new helper function sendSYN()
         synPack.flag = SYN;
         sockets[fd].state = SYN_SENT;
-        makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
-                
-        call LinkState.send(sendReq);
-        // ^^^^^^
+        
+        makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
+
+        call LinkState.send(package);
+        
+        return SUCCESS;
     }
 
     command error_t Transport.close(socket_t fd){
@@ -262,6 +271,7 @@ implementation{
         
         currentSocket->state = LISTEN;
         return SUCCESS;
+
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
@@ -296,7 +306,7 @@ implementation{
                     break;
 
                 case LISTEN:
-                    sendSyn(i);
+                    // sendSyn(i);
                     break;
                     
             }

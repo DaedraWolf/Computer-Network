@@ -46,6 +46,8 @@ implementation{
       dbg(GENERAL_CHANNEL, "Booted\n");
       
       call LinkState.advertise();
+
+      call Transport.startTimer();
    }
 
    event void AMControl.startDone(error_t err){

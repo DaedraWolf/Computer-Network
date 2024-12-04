@@ -37,18 +37,11 @@ Creating noise model for  7
 Creating noise model for  9
 Adding Channel command
 Adding Channel transport
-0:7:45.291000745 DEBUG (1): A Command has been Issued.
-0:7:45.291000745 DEBUG (1): Command Type: Server
-0:7:45.291000745 DEBUG (1): SETTING TEST SERVER... 
-0:7:45.291000745 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
-0:7:45.291000745 DEBUG (1): [Transport.bind] Socket 0 current state: 1
-0:7:45.291000745 DEBUG (1): Socket binds to address 1, port 80
-0:7:45.291000745 DEBUG (1): LSP packet sent for socket 0
-0:7:45.291000745 DEBUG (1): [Transport.accept] Socket 0 cannot accept connection (no SYN recieved
-0:9:20.226471060 DEBUG (4): A Command has been Issued.
-0:9:20.226471060 DEBUG (4): Command Type: Client
-0:9:20.226471060 DEBUG (4): SETTING TEST CLIENT... 
-0:9:20.226471060 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
-0:9:20.226471060 DEBUG (4): [Transport.bind] Socket 0 current state: 1
-0:9:20.226471060 DEBUG (4): Socket binds to address 4, port 80
-0:9:20.226471060 DEBUG (4): LSP packet sent for socket 0
+0:7:13.646897017 DEBUG (1): A Command has been Issued.
+0:7:13.646897017 DEBUG (1): Command Type: Server
+0:7:13.646897017 DEBUG (1): SETTING TEST SERVER... 
+0:7:13.646897017 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
+0:8:42.867523604 DEBUG (4): A Command has been Issued.
+0:8:42.867523604 DEBUG (4): Command Type: Client
+0:8:42.867523604 DEBUG (4): SETTING TEST CLIENT... 
+0:8:42.867523604 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
