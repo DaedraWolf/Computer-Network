@@ -18,6 +18,9 @@ implementation{
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     // uint8_t responseData[SOCKET_BUFFER_SIZE];
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack);
+    void sendSyn(socket_t fd, socket_addr_t* addr);
+    void sendSynAck(socket_t fd);
+    void sendACK();
     uint16_t destination;
     pack sendReq;
     uint16_t seqNum;
@@ -42,9 +45,6 @@ implementation{
         return NULL_SOCKET; // No Sockets available
     }
 
-
-    // SYN and ACK 
-
     // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
 
@@ -52,9 +52,9 @@ implementation{
 
         if (sockets[fd].state == LISTEN){
 
-            addr->addr = TOS_NODE_ID;
+            addr->addr = TOS_NODE_ID; 
             sockets[fd].src = 80; 
-            addr->port = 80;
+            addr->port = 80; 
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
 
             makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&sockets[fd], sizeof(socket_store_t));
@@ -160,12 +160,13 @@ implementation{
         
         sockets[fd].dest = *addr; // Does nothing right now
 
+        //Replace all with new helper function sendSYN()
         synPack.flag = SYN;
         sockets[fd].state = SYN_SENT;
         makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
                 
         call LinkState.send(sendReq);
-        // Start timer for retransmission
+        // ^^^^^^
     }
 
     command error_t Transport.close(socket_t fd){
@@ -287,6 +288,22 @@ implementation{
             
         }
     }
+
+    void sendSyn(socket_t fd, socket_addr_t* addr){
+        tcp_pack synPacket;
+        pack synPack;
+
+        synPacket.flag = SYN;
+        
+        makePack(&synPack, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&synPacket, sizeof(tcp_pack));
+        call LinkState.send(synPack);
+        
+        dbg(TRANSPORT_CHANNEL, "Socket %d: Sending SYN packet\n", fd);
+    }
+        
+    // void sendSYNACK(){
+
+    // }
 
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack) {
         pack forwardPacket;
