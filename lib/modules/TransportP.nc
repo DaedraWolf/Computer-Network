@@ -18,9 +18,9 @@ implementation{
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     // uint8_t responseData[SOCKET_BUFFER_SIZE];
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack);
-    void sendSyn(socket_addr_t* addr);
-    void sendSynAck(socket_addr_t* addr);
-    void sendAck(socket_addr_t* addr);
+    void sendSyn(uint16_t addr);
+    void sendSynAck(uint16_t addr);
+    void sendAck(uint16_t addr);
     uint16_t destination;
     pack sendReq;
     uint16_t seqNum;
@@ -119,19 +119,26 @@ implementation{
 
         switch (rcvdPayload->flag) {
 
-            case DATA:
-                break;
-
-            case ACK:
-                break;
-
             case SYN:
+                dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
+                sendSynAck(p->src);
                 break;
 
             case SYN_ACK:
+                dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
+                sendAck(p->src);
+                break;
+
+            case ACK:
+                dbg(TRANSPORT_CHANNEL, "Received ACK from Socket %d \n", fd);
+                break;
+
+            case DATA:
+
                 break;
 
             case FIN:
+                // dbg(TRANSPORT_CHANNEL)
                 break;
 
         }
@@ -279,6 +286,7 @@ implementation{
 
         for (i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
             currentSocket = sockets[i];
+
             switch (currentSocket.state){
 
                 case ESTABLISHED:
@@ -296,7 +304,7 @@ implementation{
         }
     }
 
-    void sendSyn(socket_addr_t* addr){
+    void sendSyn(uint16_t addr){
         tcp_pack synPacket;
         pack synPack;
 
@@ -308,25 +316,25 @@ implementation{
         dbg(TRANSPORT_CHANNEL, "Sending SYN packet\n");
     }
         
-    void sendSynAck(socket_addr_t* addr){
+    void sendSynAck(uint16_t addr){
         tcp_pack synAckPacket;
         pack synAckPack;
 
         synAckPacket.flag = SYN_ACK;
 
-        makePack(&synAckPack, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&synAckPacket, sizeof(tcp_pack));
+        makePack(&synAckPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&synAckPacket, sizeof(tcp_pack));
         call LinkState.send(synAckPack);
 
         dbg(TRANSPORT_CHANNEL, "Sending SYN-ACK packet\n");
     }
 
-    void sendAck(socket_addr_t* addr){
+    void sendAck(uint16_t addr){
         tcp_pack ackPacket;
         pack ackPack;
 
         ackPacket.flag = ACK;
 
-        makePack(&ackPack, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&ackPacket, sizeof(tcp_pack));
+        makePack(&ackPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&ackPacket, sizeof(tcp_pack));
         call LinkState.send(ackPack);
 
         dbg(TRANSPORT_CHANNEL, "Sending ACK packet\n");
