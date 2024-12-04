@@ -18,8 +18,8 @@ implementation{
     socket_store_t sockets[MAX_NUM_OF_SOCKETS];
     // uint8_t responseData[SOCKET_BUFFER_SIZE];
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack);
-    void sendSYN(socket_t fd, socket_addr_t* addr);
-    void sendSYNACK();
+    void sendSyn(socket_t fd, socket_addr_t* addr);
+    void sendSynAck(socket_t fd);
     void sendACK();
     uint16_t destination;
     pack sendReq;
@@ -258,37 +258,21 @@ implementation{
         }
     }
 
-    void sendSYN(socket_t fd, socket_addr_t* addr){
-        socket_store_t* currentSocket;
+    void sendSyn(socket_t fd, socket_addr_t* addr){
         tcp_pack synPacket;
-        currentSocket = &sockets[fd];
-        
-        currentSocket->lastSent = 0;
-        currentSocket->lastAck = 0;
-        currentSocket->nextExpected = 0;
-        currentSocket->lastRcvd = 0;
-        currentSocket->lastWritten = 0;
-        currentSocket->lastRead = 0;
-        
-        // Prepare SYN packet
+        pack synPack;
+
         synPacket.flag = SYN;
-        synPacket.seq = currentSocket->lastSent;  //Use lastSent (Seq #)
-        synPacket.data = NULL;  // No data in SYN packet
         
-        // Update socket state and destination
-        currentSocket->state = SYN_SENT;
-        currentSocket->dest = *addr;
-        
-        makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPacket, sizeof(tcp_pack));
-        call LinkState.send(sendReq);
-        
-        // Start retransmission timer
-        call sendTimer.startOneShot(2000); // 2 sec
+        makePack(&synPack, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&synPacket, sizeof(tcp_pack));
+        call LinkState.send(synPack);
         
         dbg(TRANSPORT_CHANNEL, "Socket %d: Sending SYN packet\n", fd);
     }
+        
+    // void sendSYNACK(){
 
-    
+    // }
 
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack) {
         pack forwardPacket;
