@@ -1,8 +1,9 @@
 #define MAX_NUM_OF_SOCKETS 1
 #define NULL_SOCKET 255
 #define SLIDING_WINDOW_SIZE 1
-#define TCP_TIMER_LENGTH 1000
+#define TCP_TIMER_LENGTH 2000
 #define TEST_SERVER_NODE 1
+#define MAX_RETRIES 100
 
 #include "../../includes/socket.h"
 #include "../../includes/tcpPacket.h"
@@ -24,6 +25,7 @@ implementation{
     void sendSynAck(uint16_t addr);
     void sendAck(uint16_t addr);
     void startTimer();
+    uint8_t synRetry = 0;
     uint16_t destination;
     pack sendReq;
     uint16_t seqNum;
@@ -54,20 +56,20 @@ implementation{
 
     // Binds socket with an address and port
     command error_t Transport.bind(socket_t fd, socket_addr_t *addr){
+        socket_store_t *currentSocket = &sockets[fd];
 
-        dbg(TRANSPORT_CHANNEL, "[Transport.bind] Socket %d current state: %d\n", fd, sockets[fd].state);
-
-        if (sockets[fd].state == LISTEN){
-
-            addr->addr = TOS_NODE_ID; 
-            sockets[fd].src = 80; 
-            addr->port = 80; 
+        dbg(TRANSPORT_CHANNEL, "[Transport.bind] Socket %d current state: %d\n", fd, currentSocket->state);
+        if (currentSocket->state == LISTEN){
+            // addr->addr = TOS_NODE_ID; 
+            currentSocket->src = TOS_NODE_ID;
+            currentSocket->dest.addr = addr->addr;
+            // addr->port = 80; 
             dbg(TRANSPORT_CHANNEL, "Socket binds to address %d, port %d\n", TOS_NODE_ID, addr->port);
 
-            makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&sockets[fd], sizeof(socket_store_t));
+            makePack(&sendReq, TOS_NODE_ID, addr->addr, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)currentSocket, sizeof(socket_store_t));
             call LinkState.send(sendReq);
             dbg(TRANSPORT_CHANNEL, "LSP packet sent for socket %d\n", fd);
-
+            
             return SUCCESS; // Able to bind            
         }
 
@@ -78,18 +80,18 @@ implementation{
 
     // Accepts incoming connectivity
     command socket_t Transport.accept(socket_t fd){
-        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d state: %d\n", fd, sockets[fd].state);
+        socket_store_t *currentSocket = &sockets[fd];
         
-        if (sockets[fd].state == LISTEN) {
-            // Check if SYN packet is ready to accept
-            sockets[fd].state = SYN_RCVD;
-            dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d now waiting for SYN\n", fd);
-                // ESTABLISHED transition 
-                // sockets[fd].state = ESTABLISHED; 
-                dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d accepted connection from %d\n", fd, sockets[fd].dest.addr);
+        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d state: %d\n", fd, currentSocket->state);
+        
+        if (currentSocket->state == SYN_RCVD) {
+            currentSocket->state = ESTABLISHED;
+            // dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d now waiting for SYN\n", fd);
+
+            dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d now established connection with %d\n", fd, currentSocket->dest.addr);
                 return fd;
         }
-        dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved)\n", fd);
+        // dbg(TRANSPORT_CHANNEL, "[Transport.accept] Socket %d cannot accept connection (no SYN recieved)\n", fd);
         return NULL_SOCKET;
     }
 
@@ -114,6 +116,11 @@ implementation{
         pack* p = (pack*)package;
         tcp_pack* rcvdPayload;
         socket_t fd;
+        socket_addr_t addr;
+        socket_t serverSocket;
+        uint16_t i;
+
+        addr.addr = p->src;
         
         if (p->protocol != PROTOCOL_TCP)
             return FAIL;
@@ -124,21 +131,53 @@ implementation{
         switch (rcvdPayload->flag) {
 
             case SYN:
-                dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
-                sendSynAck(p->src);
+
+                dbg(TRANSPORT_CHANNEL, "Received SYN from %d\n", p->src);
+
+                for (i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+                    if (sockets[i].state == LISTEN) {
+                        serverSocket = i;
+                        break;
+                    }
+                }
+
+                if (serverSocket == NULL_SOCKET) {
+                    serverSocket = call Transport.socket();
+                }
+
+                if (call Transport.bind(serverSocket, &addr) == SUCCESS) {
+                    dbg(TRANSPORT_CHANNEL, "Server socket bound successfully\n");
+  
+                    sendSynAck(p->src);
+                    sockets[serverSocket].state = SYN_RCVD;
+                    // dbg(TRANSPORT_CHANNEL, "%d: %d\n", serverSocket, sockets[fd].state);
+                } else {
+                    dbg(TRANSPORT_CHANNEL, "Failed to bind server socket\n");
+                }
+                
                 break;
 
             case SYN_ACK:
                 if (fd == NULL_SOCKET)
                     return FAIL;
-                dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
-                sendAck(p->src);
+
+                if (call Transport.accept(fd) == SUCCESS) {
+                    dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
+                    sendAck(p->src);
+                }
+
                 break;
 
             case ACK:
                 if (fd == NULL_SOCKET)
                     return FAIL;
                 dbg(TRANSPORT_CHANNEL, "Received ACK from Socket %d \n", fd);
+
+                if (sockets[fd].state == SYN_SENT || sockets[fd].state == SYN_RCVD) {
+                    sockets[fd].state = ESTABLISHED;
+                    sendAck(p->src);
+                }
+
                 break;
 
             case DATA:
@@ -303,7 +342,10 @@ implementation{
                 
                 case SYN_SENT:
                     // Retransmit SYN if waiting
-                    sendSyn(currentSocket.dest.addr);
+                    if (synRetry < MAX_RETRIES){
+                        sendSyn(currentSocket.dest.addr);
+                        synRetry++;
+                    }
                     break;
 
                 case SYN_RCVD:
