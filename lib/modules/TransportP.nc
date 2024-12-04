@@ -120,10 +120,7 @@ implementation{
 
         rcvdPayload = (tcp_pack*)p->payload;
         fd = getSocket(p->src);
-
-        if (fd == NULL_SOCKET)
-            return FAIL;
-
+;
         switch (rcvdPayload->flag) {
 
             case SYN:
@@ -132,16 +129,21 @@ implementation{
                 break;
 
             case SYN_ACK:
+                if (fd == NULL_SOCKET)
+                    return FAIL;
                 dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
                 sendAck(p->src);
                 break;
 
             case ACK:
+                if (fd == NULL_SOCKET)
+                    return FAIL;
                 dbg(TRANSPORT_CHANNEL, "Received ACK from Socket %d \n", fd);
                 break;
 
             case DATA:
-
+                if (fd == NULL_SOCKET)
+                    return FAIL;
                 break;
 
             case FIN:
