@@ -37,11 +37,14 @@ Creating noise model for  7
 Creating noise model for  9
 Adding Channel command
 Adding Channel transport
-0:7:13.646897017 DEBUG (1): A Command has been Issued.
-0:7:13.646897017 DEBUG (1): Command Type: Server
-0:7:13.646897017 DEBUG (1): SETTING TEST SERVER... 
-0:7:13.646897017 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
-0:8:42.867523604 DEBUG (4): A Command has been Issued.
-0:8:42.867523604 DEBUG (4): Command Type: Client
-0:8:42.867523604 DEBUG (4): SETTING TEST CLIENT... 
-0:8:42.867523604 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
+0:7:22.138672048 DEBUG (1): A Command has been Issued.
+0:7:22.138672048 DEBUG (1): Command Type: Server
+0:7:22.138672048 DEBUG (1): SETTING TEST SERVER... 
+0:7:22.138672048 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
+0:8:50.979844200 DEBUG (4): A Command has been Issued.
+0:8:50.979844200 DEBUG (4): Command Type: Client
+0:8:50.979844200 DEBUG (4): SETTING TEST CLIENT... 
+0:8:50.979844200 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
+0:8:51.120148201 DEBUG (3): Forwarding TCP Package
+0:8:51.120148201 DEBUG (3): Messaged Received: 20624226910:8:51.300293345 DEBUG (1): TCP Package received at 1 from 4
+0:8:51.300293345 DEBUG (1): Messaged Received: 2052014483

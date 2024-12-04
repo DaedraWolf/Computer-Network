@@ -279,10 +279,10 @@ implementation{
             pack* package = (pack*)payload;
             if (package->protocol == PROTOCOL_TCP){
                 if (package->dest == TOS_NODE_ID) {
-                    dbg(ROUTING_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
+                    dbg(TRANSPORT_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
                     call Transport.receive(package);
                 } else {
-                    dbg(ROUTING_CHANNEL, "Forwarding TCP Package\n");
+                    dbg(TRANSPORT_CHANNEL, "Forwarding TCP Package\n");
                     call LinkState.send(*package);
                 }
             }
