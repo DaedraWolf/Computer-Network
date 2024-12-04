@@ -117,16 +117,23 @@ implementation{
         if (fd == NULL_SOCKET)
             return FAIL;
 
-        if (rcvdPayload->flag == DATA) {
-            
-        } else if (rcvdPayload->flag == ACK) {
-            
-        } else if (rcvdPayload->flag == SYN) {
-            
-        } else if (rcvdPayload->flag == SYN_ACK) {
-            
-        } else if (rcvdPayload->flag == FIN) {
-            
+        switch (rcvdPayload->flag) {
+
+            case DATA:
+                break;
+
+            case ACK:
+                break;
+
+            case SYN:
+                break;
+
+            case SYN_ACK:
+                break;
+
+            case FIN:
+                break;
+
         }
 
         return SUCCESS;
