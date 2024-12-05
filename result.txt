@@ -37,71 +37,67 @@ Creating noise model for  7
 Creating noise model for  9
 Adding Channel command
 Adding Channel transport
-0:7:34.533204068 DEBUG (1): A Command has been Issued.
-0:7:34.533204068 DEBUG (1): Command Type: Server
-0:7:34.533204068 DEBUG (1): SETTING TEST SERVER... 
-0:7:34.533204068 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
-0:9:5.712143356 DEBUG (4): A Command has been Issued.
-0:9:5.712143356 DEBUG (4): Command Type: Client
-0:9:5.712143356 DEBUG (4): SETTING TEST CLIENT... 
-0:9:5.712143356 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
-0:9:5.886520911 DEBUG (5): Forwarding TCP Package
-0:9:5.975266168 DEBUG (2): Forwarding TCP Package
-0:9:6.219894677 DEBUG (1): TCP Package received at 1 from 4
-0:9:6.219894677 DEBUG (1): Received SYN from 4
-0:9:6.219894677 DEBUG (1): [Transport.bind] Socket 0 current state: 1
-0:9:6.219894677 DEBUG (1): Socket binds to address 1, port 176
-0:9:6.219894677 DEBUG (1): LSP packet sent for socket 0
-0:9:6.219894677 DEBUG (1): Server socket bound successfully
-0:9:6.219894677 DEBUG (1): Sending SYN-ACK packet
-0:9:6.254638752 DEBUG (2): Forwarding TCP Package
-0:9:6.280029545 DEBUG (5): Forwarding TCP Package
-0:9:6.357315188 DEBUG (2): Forwarding TCP Package
-0:9:6.445221188 DEBUG (5): Forwarding TCP Package
-0:9:6.467713032 DEBUG (4): TCP Package received at 4 from 1
-0:9:6.467713032 DEBUG (4): Received ACK from Socket 0 
-0:9:6.467713032 DEBUG (4): Server established
-0:9:6.467713032 DEBUG (4): Sending ACK packet
-0:9:6.596130998 DEBUG (4): TCP Package received at 4 from 1
-0:9:6.596130998 DEBUG (4): [Transport.accept] Socket 0 state: 2
-0:9:6.754593427 DEBUG (5): Forwarding TCP Package
-0:9:6.836929990 DEBUG (2): Forwarding TCP Package
-0:9:6.875000163 DEBUG (1): Sending SYN packet
-0:9:7.034149394 DEBUG (1): TCP Package received at 1 from 4
-0:9:7.034149394 DEBUG (1): Received ACK from Socket 0 
-0:9:7.034149394 DEBUG (1): Server established
-0:9:7.034149394 DEBUG (1): Sending ACK packet
-0:9:7.097366459 DEBUG (2): Forwarding TCP Package
-0:9:7.315094109 DEBUG (2): Forwarding TCP Package
-0:9:7.330383551 DEBUG (5): Forwarding TCP Package
-0:9:7.415299124 DEBUG (4): TCP Package received at 4 from 1
-0:9:7.415299124 DEBUG (4): Received SYN from 1
-0:9:7.415299124 DEBUG (4): [Transport.bind] Socket 0 current state: 2
-0:9:7.415299124 DEBUG (4): [Transport.bind] Unable to bind
-0:9:7.415299124 DEBUG (4): Failed to bind server socket
-0:9:7.486770885 DEBUG (5): Forwarding TCP Package
-0:9:7.634689972 DEBUG (4): TCP Package received at 4 from 1
-0:9:7.634689972 DEBUG (4): Received ACK from Socket 0 
+0:7:34.783784038 DEBUG (1): A Command has been Issued.
+0:7:34.783784038 DEBUG (1): Command Type: Server
+0:7:34.783784038 DEBUG (1): SETTING TEST SERVER... 
+0:7:34.783784038 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
+0:9:7.265626096 DEBUG (4): A Command has been Issued.
+0:9:7.265626096 DEBUG (4): Command Type: Client
+0:9:7.265626096 DEBUG (4): SETTING TEST CLIENT... 
+0:9:7.265626096 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
+0:9:7.537552384 DEBUG (3): Forwarding TCP Package
+0:9:7.775757202 DEBUG (1): TCP Package received at 1 from 4
+0:9:7.775757202 DEBUG (1): Received SYN from 4
+0:9:7.775757202 DEBUG (1): [Transport.bind] Socket 0 current state: 1
+0:9:7.775757202 DEBUG (1): Socket binds to address 1, port 176
+0:9:7.775757202 DEBUG (1): LSP packet sent for socket 0
+0:9:7.775757202 DEBUG (1): Server socket bound successfully
+0:9:7.775757202 DEBUG (1): Sending SYN-ACK packet
+0:9:7.925369361 DEBUG (3): Forwarding TCP Package
+0:9:7.951904406 DEBUG (3): Forwarding TCP Package
+0:9:8.047821453 DEBUG (4): TCP Package received at 4 from 1
+0:9:8.047821453 DEBUG (4): Received ACK from Socket 0 
+0:9:8.047821453 DEBUG (4): Server established
+0:9:8.047821453 DEBUG (4): Sending ACK packet
+0:9:8.294174683 DEBUG (3): Forwarding TCP Package
+0:9:8.300735831 DEBUG (4): TCP Package received at 4 from 1
+0:9:8.300735831 DEBUG (4): [Transport.accept] Socket 0 state: 2
+0:9:8.400665673 DEBUG (1): TCP Package received at 1 from 4
+0:9:8.400665673 DEBUG (1): Received ACK from Socket 0 
+0:9:8.400665673 DEBUG (1): Server established
+0:9:8.400665673 DEBUG (1): Sending ACK packet
+0:9:8.513015852 DEBUG (3): Forwarding TCP Package
+0:9:8.775421528 DEBUG (4): TCP Package received at 4 from 1
+0:9:8.775421528 DEBUG (4): Received ACK from Socket 0 
 0:9:8.828125143 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:8.828125143 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:9.121582170 DEBUG (2): Forwarding TCP Package
-0:9:9.369385016 DEBUG (5): Forwarding TCP Package
-0:9:9.547516500 DEBUG (4): TCP Package received at 4 from 1
+0:9:8.828125543 DEBUG (4): Sending Data to 1; data_seq: 1; data: 98
+0:9:8.847931031 DEBUG (3): Forwarding TCP Package
+0:9:8.864487200 DEBUG (3): Forwarding TCP Package
+0:9:9.149978991 DEBUG (4): TCP Package received at 4 from 1
+0:9:9.149978991 DEBUG (4): Received DATA from 1, seq 117: 0
+0:9:9.366455462 DEBUG (1): TCP Package received at 1 from 4
+0:9:9.366455462 DEBUG (1): Received DATA from 4, seq 117: 0
 0:9:10.781250153 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:10.781250153 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:11.022155865 DEBUG (2): Forwarding TCP Package
-0:9:11.091873392 DEBUG (5): Forwarding TCP Package
-0:9:11.243241002 DEBUG (4): TCP Package received at 4 from 1
-0:9:11.243241002 DEBUG (4): Received DATA from 1, seq 138: 0
+0:9:10.781250553 DEBUG (4): Sending Data to 1; data_seq: 1; data: 98
+0:9:10.888641888 DEBUG (3): Forwarding TCP Package
+0:9:11.056824126 DEBUG (1): TCP Package received at 1 from 4
+0:9:11.078781243 DEBUG (3): Forwarding TCP Package
+0:9:11.231842418 DEBUG (4): TCP Package received at 4 from 1
 0:9:12.734375143 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:12.734375143 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:12.756195202 DEBUG (2): Forwarding TCP Package
-0:9:13.036300933 DEBUG (5): Forwarding TCP Package
-0:9:13.142502472 DEBUG (4): TCP Package received at 4 from 1
+0:9:12.734375543 DEBUG (4): Sending Data to 1; data_seq: 1; data: 98
+0:9:12.807998768 DEBUG (3): Forwarding TCP Package
+0:9:12.926117454 DEBUG (3): Forwarding TCP Package
+0:9:12.931656252 DEBUG (4): TCP Package received at 4 from 1
+0:9:12.931656252 DEBUG (4): Received DATA from 1, seq 117: 0
+0:9:13.167801261 DEBUG (1): TCP Package received at 1 from 4
+0:9:13.167801261 DEBUG (1): Received DATA from 4, seq 117: 0
 0:9:14.687500143 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:14.687500143 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:14.980301023 DEBUG (2): Forwarding TCP Package
-0:9:15.128906525 DEBUG (5): Forwarding TCP Package
-0:9:15.186432509 DEBUG (4): TCP Package received at 4 from 1
+0:9:14.687500543 DEBUG (4): Sending Data to 1; data_seq: 1; data: 98
+0:9:14.933502671 DEBUG (3): Forwarding TCP Package
+0:9:14.974640011 DEBUG (3): Forwarding TCP Package
+0:9:15.058914557 DEBUG (1): TCP Package received at 1 from 4
+0:9:15.058914557 DEBUG (1): Received DATA from 4, seq 117: 0
+0:9:15.163864516 DEBUG (4): TCP Package received at 4 from 1
+0:9:15.163864516 DEBUG (4): Received DATA from 1, seq 117: 0
 0:9:16.640625173 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
-0:9:16.640625173 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
+0:9:16.640625573 DEBUG (4): Sending Data to 1; data_seq: 1; data: 98

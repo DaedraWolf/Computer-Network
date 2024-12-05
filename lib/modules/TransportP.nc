@@ -377,9 +377,9 @@ implementation{
                     break;
 
                 case ESTABLISHED:
-                    if (currentSocket.src == TOS_NODE_ID) {
+                    // if (currentSocket.src == TOS_NODE_ID) {
                         sendData(i);
-                    }
+                    // }
                     break;
 
                 case LISTEN:
