@@ -4,6 +4,7 @@
 #define TCP_TIMER_LENGTH 2000
 #define TEST_SERVER_NODE 1
 #define MAX_RETRIES 100
+#define TEST_STRING "abcdefghijklmnopqrstuvwxyz"
 
 #include "../../includes/socket.h"
 #include "../../includes/tcpPacket.h"
@@ -28,7 +29,8 @@ implementation{
     uint8_t synRetry = 0;
     uint16_t destination;
     pack sendReq;
-    uint16_t seqNum;
+    uint16_t seqNum = 1;
+    uint16_t rcvdSeq[MAX_NEIGHBORS][MAX_NEIGHBORS];
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length);
     socket_t getSocket(uint16_t node);
@@ -127,7 +129,7 @@ implementation{
 
         rcvdPayload = (tcp_pack*)p->payload;
         fd = getSocket(p->src);
-;
+
         switch (rcvdPayload->flag) {
 
             case SYN:
@@ -162,7 +164,7 @@ implementation{
                     return FAIL;
 
                 if (call Transport.accept(fd) == SUCCESS) {
-                    dbg(TRANSPORT_CHANNEL, "Received SYN from %d sent to SYN_ACK, \n", p->src);
+                    dbg(TRANSPORT_CHANNEL, "Received SYN_ACK from %d\n", p->src);
                     sendAck(p->src);
                 }
 
@@ -175,14 +177,25 @@ implementation{
 
                 if (sockets[fd].state == SYN_SENT || sockets[fd].state == SYN_RCVD) {
                     sockets[fd].state = ESTABLISHED;
+                    dbg(TRANSPORT_CHANNEL, "Server established\n");
                     sendAck(p->src);
+                }
+
+                if (sockets[fd].state == ESTABLISHED) {
+                    
                 }
 
                 break;
 
             case DATA:
+                dbg(TRANSPORT_CHANNEL, "what?\n");
+
                 if (fd == NULL_SOCKET)
                     return FAIL;
+
+                dbg(TRANSPORT_CHANNEL, "Received DATA from %d, seq %d: %d\n", p->src, rcvdPayload->seq, rcvdPayload->data);
+
+                receiveData(fd, rcvdPayload->seq, rcvdPayload->data);
                 break;
 
             case FIN:
@@ -225,6 +238,8 @@ implementation{
         //Replace all with new helper function sendSYN()
         synPack.flag = SYN;
         sockets[fd].state = SYN_SENT;
+
+        call Transport.write(fd, TEST_STRING, sizeof(TEST_STRING));
         
         makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&synPack, sizeof(tcp_pack));
 
@@ -319,6 +334,13 @@ implementation{
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
             if (package->protocol == PROTOCOL_TCP){
+                // if (package->seq <= rcvdSeq[package->src][package->dest]) {
+                //     dbg(TRANSPORT_CHANNEL, "Dropping duplicate package from %d; Seq %d\n", package->src, package->seq);
+                //     return msg;
+                // }
+
+                rcvdSeq[package->src][package->dest] = package->seq;
+
                 if (package->dest == TOS_NODE_ID) {
                     dbg(TRANSPORT_CHANNEL, "TCP Package received at %d from %d\n", TOS_NODE_ID, package->src);
                     call Transport.receive(package);
@@ -451,8 +473,11 @@ implementation{
         dataPack->flag = DATA;
         dataPack->data = currentSocket->sendBuff[dataPack->seq];
 
+        // dbg(TRANSPORT_CHANNEL, "Socketstate: %d", currentSocket->state);
+        // dbg(TRANSPORT_CHANNEL, "Sending Data to %d; seqnum: %d; data_seq: %d; data:\n", currentSocket->dest.addr, seqNum+1, dataPack->seq);
+
         // may need to change length in the future, depending on how much data is being sent
-        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)dataPack, 1);
+        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&dataPack, 1);
         call LinkState.send(package);
     }
 
