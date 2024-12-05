@@ -24,7 +24,7 @@ implementation{
     void forwardSYN(uint16_t src, uint16_t dest, tcp_pack* synPack);
     void sendSyn(uint16_t addr);
     void sendSynAck(uint16_t addr);
-    void sendAck(uint16_t addr);
+    void sendAck(uint16_t addr, uint8_t seq);
     void startTimer();
     uint8_t synRetry = 0;
     uint16_t destination;
@@ -164,7 +164,7 @@ implementation{
 
                 if (call Transport.accept(fd) == SUCCESS) {
                     dbg(TRANSPORT_CHANNEL, "Received SYN_ACK from %d\n", package->src);
-                    sendAck(package->src);
+                    sendAck(package->src, 0);
                 }
 
                 break;
@@ -172,15 +172,15 @@ implementation{
             case ACK:
                 if (fd == NULL_SOCKET)
                     return FAIL;
-                dbg(TRANSPORT_CHANNEL, "Received ACK from Socket %d \n", fd);
+                dbg(TRANSPORT_CHANNEL, "Received ACK[%d] from %d \n", rcvdPayload->seq, package->src);
 
                 if (sockets[fd].state == SYN_SENT || sockets[fd].state == SYN_RCVD) {
                     sockets[fd].state = ESTABLISHED;
                     dbg(TRANSPORT_CHANNEL, "Server established\n");
-                    sendAck(package->src);
-                }
-
-                if (sockets[fd].state == ESTABLISHED) {
+                    sendAck(package->src, 0);
+                } else if (sockets[fd].state == ESTABLISHED) {
+                    // dbg(TRANSPORT_CHANNEL, "Received ACK[%d]\n", rcvdPayload->seq);
+                    sockets[fd].lastAck++;
                     
                 }
 
@@ -190,9 +190,10 @@ implementation{
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                dbg(TRANSPORT_CHANNEL, "Received DATA from %d, seq %d: %d\n", package->src, rcvdPayload->seq, rcvdPayload->data);
+                dbg(TRANSPORT_CHANNEL, "Received DATA from %d; seq: %d; data: %d\n", package->src, rcvdPayload->seq, rcvdPayload->data);
 
                 receiveData(fd, rcvdPayload->seq, rcvdPayload->data);
+                sendAck(package->src, sockets[fd].lastRcvd);
                 break;
 
             case FIN:
@@ -415,11 +416,12 @@ implementation{
         dbg(TRANSPORT_CHANNEL, "Sending SYN-ACK packet\n");
     }
 
-    void sendAck(uint16_t addr){
+    void sendAck(uint16_t addr, uint8_t seq){
         tcp_pack ackPacket;
         pack ackPack;
 
         ackPacket.flag = ACK;
+        ackPacket.seq = seq;
 
         makePack(&ackPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&ackPacket, sizeof(tcp_pack));
         call LinkState.send(ackPack);
@@ -478,7 +480,7 @@ implementation{
         dbg(TRANSPORT_CHANNEL, "Sending Data to %d; data_seq: %d; data: %d\n", currentSocket->dest.addr, dataPack->seq, dataPack->data);
 
         // may need to change length in the future, depending on how much data is being sent
-        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)dataPack, 1);
+        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, /*(uint8_t*)*/dataPack, sizeof(tcp_pack));
         call LinkState.send(package);
     }
 
@@ -487,12 +489,15 @@ implementation{
         uint8_t lastRcvd = currentSocket->lastRcvd;
 
         if (seq <= lastRcvd || seq > lastRcvd + SLIDING_WINDOW_SIZE) {
-           return FAIL;
+            dbg(TRANSPORT_CHANNEL, "DATA[%d] not accepted, outside window\n", seq);
+            return FAIL;
         }
 
         currentSocket->rcvdBuff[seq] = data;
         if (seq == lastRcvd + 1)
             currentSocket->lastRcvd++;
+
+        dbg(TRANSPORT_CHANNEL, "DATA[%d] accepted\n", seq);
             
         return SUCCESS;
     }
