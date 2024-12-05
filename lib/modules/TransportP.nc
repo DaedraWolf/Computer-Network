@@ -115,26 +115,25 @@ implementation{
 
 
     command error_t Transport.receive(pack* package){
-        pack* p = (pack*)package;
         tcp_pack* rcvdPayload;
         socket_t fd;
         socket_addr_t addr;
         socket_t serverSocket;
         uint16_t i;
 
-        addr.addr = p->src;
+        addr.addr = package->src;
         
-        if (p->protocol != PROTOCOL_TCP)
+        if (package->protocol != PROTOCOL_TCP)
             return FAIL;
 
-        rcvdPayload = (tcp_pack*)p->payload;
-        fd = getSocket(p->src);
+        rcvdPayload = (tcp_pack*)package->payload;
+        fd = getSocket(package->src);
 
         switch (rcvdPayload->flag) {
 
             case SYN:
 
-                dbg(TRANSPORT_CHANNEL, "Received SYN from %d\n", p->src);
+                dbg(TRANSPORT_CHANNEL, "Received SYN from %d\n", package->src);
 
                 for (i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
                     if (sockets[i].state == LISTEN) {
@@ -150,7 +149,7 @@ implementation{
                 if (call Transport.bind(serverSocket, &addr) == SUCCESS) {
                     dbg(TRANSPORT_CHANNEL, "Server socket bound successfully\n");
   
-                    sendSynAck(p->src);
+                    sendSynAck(package->src);
                     sockets[serverSocket].state = SYN_RCVD;
                     // dbg(TRANSPORT_CHANNEL, "%d: %d\n", serverSocket, sockets[fd].state);
                 } else {
@@ -164,8 +163,8 @@ implementation{
                     return FAIL;
 
                 if (call Transport.accept(fd) == SUCCESS) {
-                    dbg(TRANSPORT_CHANNEL, "Received SYN_ACK from %d\n", p->src);
-                    sendAck(p->src);
+                    dbg(TRANSPORT_CHANNEL, "Received SYN_ACK from %d\n", package->src);
+                    sendAck(package->src);
                 }
 
                 break;
@@ -178,7 +177,7 @@ implementation{
                 if (sockets[fd].state == SYN_SENT || sockets[fd].state == SYN_RCVD) {
                     sockets[fd].state = ESTABLISHED;
                     dbg(TRANSPORT_CHANNEL, "Server established\n");
-                    sendAck(p->src);
+                    sendAck(package->src);
                 }
 
                 if (sockets[fd].state == ESTABLISHED) {
@@ -188,12 +187,10 @@ implementation{
                 break;
 
             case DATA:
-                dbg(TRANSPORT_CHANNEL, "what?\n");
-
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                dbg(TRANSPORT_CHANNEL, "Received DATA from %d, seq %d: %d\n", p->src, rcvdPayload->seq, rcvdPayload->data);
+                dbg(TRANSPORT_CHANNEL, "Received DATA from %d, seq %d: %d\n", package->src, rcvdPayload->seq, rcvdPayload->data);
 
                 receiveData(fd, rcvdPayload->seq, rcvdPayload->data);
                 break;
@@ -339,6 +336,9 @@ implementation{
                 //     return msg;
                 // }
 
+                if (package->TTL <= 0)
+                    return msg;
+
                 rcvdSeq[package->src][package->dest] = package->seq;
 
                 if (package->dest == TOS_NODE_ID) {
@@ -346,6 +346,7 @@ implementation{
                     call Transport.receive(package);
                 } else {
                     dbg(TRANSPORT_CHANNEL, "Forwarding TCP Package\n");
+                    package->TTL--;
                     call LinkState.send(*package);
                 }
             }
@@ -473,11 +474,11 @@ implementation{
         dataPack->flag = DATA;
         dataPack->data = currentSocket->sendBuff[dataPack->seq];
 
-        // dbg(TRANSPORT_CHANNEL, "Socketstate: %d", currentSocket->state);
-        // dbg(TRANSPORT_CHANNEL, "Sending Data to %d; seqnum: %d; data_seq: %d; data:\n", currentSocket->dest.addr, seqNum+1, dataPack->seq);
+        // dbg(TRANSPORT_CHANNEL, "Socketstate: %d\n", currentSocket->state);
+        dbg(TRANSPORT_CHANNEL, "Sending Data to %d; data_seq: %d; data: %d\n", currentSocket->dest.addr, dataPack->seq, dataPack->data);
 
         // may need to change length in the future, depending on how much data is being sent
-        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&dataPack, 1);
+        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)dataPack, 1);
         call LinkState.send(package);
     }
 

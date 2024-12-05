@@ -58,25 +58,26 @@ implementation {
 
     // using routing table to send and forward
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
-        if (len == sizeof(pack)) {
-            pack* package = (pack*)payload;
-            if (package->protocol == PROTOCOL_TCP) {
-                if (package->seq < receiveFrame || package->seq > receiveFrame + SLIDING_WINDOW_SIZE) {
-                    //drop
-                } else {
-                    dbg(TRANSPORT_CHANNEL, "Messaged Received: %d", package->payload);
-                    // receivedPacks[package->seq] = package->payload;
-                    if (package->seq == receiveFrame)
-                        receiveFrame++;
-                }
+        // if (len == sizeof(pack)) {
+        //     pack* package = (pack*)payload;
+        //     if (package->protocol == PROTOCOL_TCP) {
+        //         if (package->seq < receiveFrame || package->seq > receiveFrame + SLIDING_WINDOW_SIZE) {
+        //             //drop
+        //         } else {
+        //             dbg(TRANSPORT_CHANNEL, "Messaged Received: %d", package->payload);
+        //             // receivedPacks[package->seq] = package->payload;
+        //             if (package->seq == receiveFrame)
+        //                 receiveFrame++;
+        //         }
 
-                //send ack
-            } else if (package->protocol == PROTOCOL_TCPREPLY) {
-                if (package->seq == frame) {
-                    frame++;
-                }
-            }
-        }
+        //         //send ack
+        //     } else if (package->protocol == PROTOCOL_TCPREPLY) {
+        //         if (package->seq == frame) {
+        //             frame++;
+        //         }
+        //     }
+        // }
+        return msg;
     }
 
     void makePack(pack *Package, uint16_t src, uint16_t dest, uint16_t TTL, uint16_t protocol, uint16_t seq, uint8_t* payload, uint8_t length){
