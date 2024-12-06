@@ -4,7 +4,7 @@
 #define TCP_TIMER_LENGTH 2000
 #define TEST_SERVER_NODE 1
 #define MAX_RETRIES 100
-#define TEST_STRING "abcdefghijklmnopqrstuvwxyz"
+#define TEST_STRING "abcdefg"
 
 #include "../../includes/socket.h"
 #include "../../includes/tcpPacket.h"
@@ -190,7 +190,7 @@ implementation{
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                dbg(TRANSPORT_CHANNEL, "Received DATA from %d; seq: %d; data: %d\n", package->src, rcvdPayload->seq, rcvdPayload->data);
+                dbg(TRANSPORT_CHANNEL, "Received DATA from %d; seq: %d; data: '%c'\n", package->src, rcvdPayload->seq, rcvdPayload->data);
 
                 receiveData(fd, rcvdPayload->seq, rcvdPayload->data);
                 sendAck(package->src, sockets[fd].lastRcvd);
@@ -479,6 +479,7 @@ implementation{
             
             makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&dataPack, sizeof(tcp_pack));
             call LinkState.send(package);
+            sockets[fd].state = CLOSED;
             return;
         }
 
@@ -490,7 +491,7 @@ implementation{
         dataPack.flag = DATA;
         dataPack.data = currentSocket->sendBuff[dataPack.seq - 1];  // -1 because arrays are 0-based
 
-        dbg(TRANSPORT_CHANNEL, "Sending Data to %d; data_seq: %d; data: %d\n", 
+        dbg(TRANSPORT_CHANNEL, "Sending Data to %d; data_seq: %d; data: %c\n", 
             currentSocket->dest.addr, dataPack.seq, dataPack.data);
 
         makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&dataPack, sizeof(tcp_pack));
