@@ -197,7 +197,9 @@ implementation{
                 break;
 
             case FIN:
-                dbg(TRANSPORT_CHANNEL, "Received FIN packet, sending ACK\n");
+                dbg(TRANSPORT_CHANNEL, "Received FIN packet from %d\n", package->src);
+                sendAck(package->src, 0);  // Acknowledge the FIN
+                call Transport.close(fd);   // Close our side
                 break;
 
         }
@@ -464,23 +466,34 @@ implementation{
 
     void sendData(socket_t fd) {
         socket_store_t *currentSocket = &sockets[fd];
-        tcp_pack *dataPack;
+        tcp_pack dataPack;  // Changed from pointer to struct
         pack package;
-
-        if (currentSocket->lastSent >= currentSocket->lastAck + SLIDING_WINDOW_SIZE) {
-            dataPack->seq = currentSocket->lastAck + 1;
-        } else {
-            dataPack->seq = ++currentSocket->lastSent;
+        uint8_t dataLength = sizeof(TEST_STRING) - 1;  // -1 to exclude null terminator
+        
+        // Check if we've sent all data
+        if (currentSocket->lastSent >= dataLength) {
+            dbg(TRANSPORT_CHANNEL, "All data sent (%d bytes). Sending FIN.\n", currentSocket->lastSent);
+            dataPack.flag = FIN;
+            dataPack.seq = 0;
+            dataPack.data = NULL;
+            
+            makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&dataPack, sizeof(tcp_pack));
+            call LinkState.send(package);
+            return;
         }
 
-        dataPack->flag = DATA;
-        dataPack->data = currentSocket->sendBuff[dataPack->seq];
+        if (currentSocket->lastSent >= currentSocket->lastAck + SLIDING_WINDOW_SIZE) {
+            return;  // Window full, wait for ACKs
+        }
 
-        // dbg(TRANSPORT_CHANNEL, "Socketstate: %d\n", currentSocket->state);
-        dbg(TRANSPORT_CHANNEL, "Sending Data to %d; data_seq: %d; data: %d\n", currentSocket->dest.addr, dataPack->seq, dataPack->data);
+        dataPack.seq = ++currentSocket->lastSent;
+        dataPack.flag = DATA;
+        dataPack.data = currentSocket->sendBuff[dataPack.seq - 1];  // -1 because arrays are 0-based
 
-        // may need to change length in the future, depending on how much data is being sent
-        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, /*(uint8_t*)*/dataPack, sizeof(tcp_pack));
+        dbg(TRANSPORT_CHANNEL, "Sending Data to %d; data_seq: %d; data: %d\n", 
+            currentSocket->dest.addr, dataPack.seq, dataPack.data);
+
+        makePack(&package, TOS_NODE_ID, currentSocket->dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&dataPack, sizeof(tcp_pack));
         call LinkState.send(package);
     }
 
