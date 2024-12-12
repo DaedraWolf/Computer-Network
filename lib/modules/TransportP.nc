@@ -355,11 +355,32 @@ implementation{
     }
 
     command void Transport.serverStart(uint8_t port){
-        uint16_t i;
+        socket_t serverSocket;
+        socket_addr_t addr;
+
+        if(serverSocket == NULL_SOCKET){
+            serverSocket = call Transport.socket();
+        }
+        
+        if(serverSocket != NULL_SOCKET){
+            addr.port = port;
+            addr.addr = TOS_NODE_ID;
+        }
     }
 
     command void Transport.clientStart(uint16_t dest, uint8_t srcPort, uint8_t destPort){
-        uint16_t i;
+        socket_t clientSocket;
+        socket_addr_t addr;
+
+        if(clientSocket == NULL_SOCKET){
+            clientSocket = call Transport.socket();
+        }
+
+        if(clientSocket != NULL_SOCKET){
+            sockets[clientSocket].src = srcPort;
+            addr.port = destPort;
+            addr.addr = dest;
+        }
     }
 
     command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg){
@@ -442,7 +463,6 @@ implementation{
         pack msgPack;
 
         msgPacket.flag = MSG;
-        msgPacket.data = NULL;  // Data will be handled separately
         
         makePack(&msgPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPacket, sizeof(tcp_pack));
         call LinkState.send(msgPack);
@@ -455,7 +475,6 @@ implementation{
         pack endPack;
 
         endPacket.flag = MSG_END;
-        endPacket.data = NULL;
         
         makePack(&endPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&endPacket, sizeof(tcp_pack));
         call LinkState.send(endPack);
