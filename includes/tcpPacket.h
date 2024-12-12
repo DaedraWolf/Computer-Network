@@ -6,7 +6,9 @@ enum tcp_flag{
     ACK,
     SYN,
     SYN_ACK,
-    FIN
+    FIN,
+    MSG,  // messaging packets
+    MSG_END     // end of message
 };
 
 typedef struct tcp_pack{

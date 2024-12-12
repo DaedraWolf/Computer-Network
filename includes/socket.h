@@ -14,6 +14,13 @@ enum socket_state{
     ESTABLISHED,
     SYN_SENT,
     SYN_RCVD,
+    SENDING     // state for message operation
+};
+
+enum msg_type {
+    BROADCAST,
+    UNICAST,
+    LIST_USER  
 };
 
 
@@ -35,6 +42,9 @@ typedef struct socket_store_t{
     enum socket_state state;
     socket_port_t src;
     socket_addr_t dest;
+
+    enum msg_type sendType;
+    enum msg_type rcvType;
 
     // This is the sender portion.
     uint8_t sendBuff[SOCKET_BUFFER_SIZE];

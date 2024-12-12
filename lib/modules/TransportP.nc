@@ -25,6 +25,11 @@ implementation{
     void sendSyn(uint16_t addr);
     void sendSynAck(uint16_t addr);
     void sendAck(uint16_t addr, uint8_t seq);
+
+    // Project 4
+    void sendMsg(uint16_t addr);
+    void sendMsgEnd(uint16_t addr);
+    
     void startTimer();
     uint8_t synRetry = 0;
     uint16_t destination;
@@ -393,6 +398,35 @@ implementation{
             
         }
     }
+
+    // Added new helper functions for sending messages / ending (Project 4)
+
+    void sendMsg(uint16_t addr){
+        tcp_pack msgPacket;
+        pack msgPack;
+
+        msgPacket.flag = MSG;
+        msgPacket.data = NULL;  // Data will be handled separately
+        
+        makePack(&msgPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPacket, sizeof(tcp_pack));
+        call LinkState.send(msgPack);
+        
+        dbg(TRANSPORT_CHANNEL, "Sending MSG packet to %d\n", addr);
+    }
+
+    void sendMsgEnd(uint16_t addr){
+        tcp_pack endPacket;
+        pack endPack;
+
+        endPacket.flag = MSG_END;
+        endPacket.data = NULL;
+        
+        makePack(&endPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&endPacket, sizeof(tcp_pack));
+        call LinkState.send(endPack);
+        
+        dbg(TRANSPORT_CHANNEL, "Sending MSG_END packet to %d\n", addr);
+        }
+    // New additions for Project 4 above
 
     void sendSyn(uint16_t addr){
         tcp_pack synPacket;
