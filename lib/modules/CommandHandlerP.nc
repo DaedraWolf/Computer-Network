@@ -98,7 +98,22 @@ implementation{
                 dbg(COMMAND_CHANNEL, "Command Type: LinkState Ping\n");
                 signal CommandHandler.linkStatePing(buff[0]);
                 break;
-            
+
+            case CMD_SERVER_START:
+                dbg(COMMAND_CHANNEL, "Command Type: Server Start\n");
+                signal CommandHandler.serverStart(buff[0]);
+                break;
+
+            case CMD_CLIENT_START:
+                dbg(COMMAND_CHANNEL, "Command Type: Client Start\n");
+                signal CommandHandler.clientStart(buff[0], buff[1], buff[2]);
+                break;
+
+            case CMD_SEND:
+                dbg(COMMAND_CHANNEL, "Command Type: Send Message\n");
+                signal CommandHandler.send(buff[0], buff[1], (uint8_t*)&buff[2]);
+                break;
+
             // End of new additions
 
             default:

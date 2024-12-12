@@ -19,6 +19,9 @@ class TestSim:
     CMD_NEIGHBOR_DISCOVERY=8
     CMD_LINKSTATE_AD=10
     CMD_LSPING=11
+    CMD_SERVER_START=12
+    CMD_CLIENT_START=13
+    CMD_SEND=14
 
     # CHANNELS - see includes/channels.h
     COMMAND_CHANNEL="command";
@@ -157,6 +160,23 @@ class TestSim:
 
     def LSPing(self, source, dest):
         self.sendCMD(self.CMD_LSPING, source, "{0}{1}".format(chr(dest), "linkstate ping command"));
+
+    def serverStart(self, source, port):
+        self.sendCMD(self.CMD_SERVER_START, source, "{0}{1}".format(chr(port), "server start command"));
+
+    def clientStart(self, source, dest, srcPort, destPort):
+        self.sendCMD(self.CMD_CLIENT_START, source, "{0}{1}{2}{3}".format(chr(dest), chr(srcPort), chr(destPort), "client start command"));
+
+    def broadcast(self, source, msg):
+        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(0, 0, chr(msg), "broadcast command"));
+
+    def unicast(self, source, dest, msg):
+        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(dest, 1, chr(msg), "unicast command"));
+
+    def getList(self, source):
+        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(0, 2, 0, "get list command"));
+
+
     # end of new additions
 
 def main():
