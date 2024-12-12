@@ -12,6 +12,8 @@
 #include "includes/CommandMsg.h"
 #include "includes/sendInfo.h"
 #include "includes/channels.h"
+#include "includes/socket.h"
+
 
 module Node{
    uses interface Boot;
@@ -123,6 +125,21 @@ implementation{
    event void CommandHandler.linkStatePing(uint16_t dest){
       dbg(GENERAL_CHANNEL, "LINKSTATE PING EVENT \n");
       call LinkState.ping(dest);
+   }
+
+   event void CommandHandler.serverStart(uint8_t port){
+      dbg(GENERAL_CHANNEL, "SERVER START EVENT \n");
+      call Transport.serverStart(port);
+   }
+
+   event void CommandHandler.clientStart(uint16_t dest, uint8_t srcPort, uint8_t destPort){
+      dbg(GENERAL_CHANNEL, "CLIENT START EVENT \n");
+      call Transport.clientStart(dest, srcPort, destPort);
+   }
+
+   event void CommandHandler.send(uint16_t dest, enum msg_type type, uint8_t* msg){
+      dbg(GENERAL_CHANNEL, "MESSAGE SEND EVENT \n");
+      call Transport.send(dest, type, msg);
    }
    //end of new additions
 
