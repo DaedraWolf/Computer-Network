@@ -146,4 +146,10 @@ interface Transport{
    command error_t listen(socket_t fd);
 
    command void startTimer();
+
+   command void serverStart(uint8_t port);
+
+   command void clientStart(uint16_t dest, uint8_t srcPort, uint8_t destPort);
+
+   command void send(uint16_t dest, enum msg_type type, uint8_t* msg);
 }
