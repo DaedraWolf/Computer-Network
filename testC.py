@@ -28,7 +28,7 @@ def main():
     s.serverStart(1, 41);
     s.runTime(60);
 
-    s.clientStart(4, 1, 41, 3);
+    s.clientStart(4, 1, 3, 41);
     s.runTime(60);
 
     s.broadcast(1, "test");
