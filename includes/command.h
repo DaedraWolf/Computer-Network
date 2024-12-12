@@ -23,6 +23,14 @@ enum{
 	CMD_NEIGHBOR_DISCOVERY=8,
 	CMD_LINKSTATE_AD=10,
 	CMD_LSPING=11,
+
+
+// Project 4 Additions
+	CMD_CONNECT=12,   // For "hello username port"
+	CMD_MSG=13,     // For "msg message"
+	CMD_WHISPER=14, // For "whisper username message"
+	CMD_USRLIST=15, // For "listusr"
+	CMD_REPLY=16,   // For server replies like "listUsrRply"
 	// end of new additions
 
 	CMD_ERROR=9
