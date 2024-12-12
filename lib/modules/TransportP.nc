@@ -384,7 +384,25 @@ implementation{
     }
 
     command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg){
-        dbg(TRANSPORT_CHANNEL, "%d %d %c\n", dest, type, msg[0]);
+        uint16_t i;
+        socket_store_t *currentSocket;
+        socket_t fd = getSocket(dest);
+        tcp_pack sendPack;
+        pack package;
+
+        if (fd == NULL_SOCKET)
+            currentSocket = &sockets[0];
+        else
+            currentSocket = &sockets[fd];
+
+        sendPack.flag = MSG;
+        sendPack.data[0] = type;
+        sendPack.data[1] = dest;
+        currentSocket->state = MSG_START;
+        currentSocket->cache = &sendPack;
+
+        makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&sendPack, sizeof(tcp_pack));
+        call LinkState.send(package);
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {

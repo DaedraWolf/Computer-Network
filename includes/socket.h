@@ -14,6 +14,8 @@ enum socket_state{
     ESTABLISHED,
     SYN_SENT,
     SYN_RCVD,
+    MSG_START,
+    REQUEST_LIST,
     SENDING     // state for message operation
 };
 
@@ -60,6 +62,8 @@ typedef struct socket_store_t{
 
     uint16_t RTT;
     uint8_t effectiveWindow;
+
+    uint8_t* cache;
 }socket_store_t;
 
 #endif
