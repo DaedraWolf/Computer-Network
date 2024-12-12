@@ -29,7 +29,7 @@ implementation{
     // Project 4
     void sendMsg(uint16_t addr);
     void sendMsgEnd(uint16_t addr);
-    
+
     void startTimer();
     uint8_t synRetry = 0;
     uint16_t destination;
@@ -135,6 +135,25 @@ implementation{
         fd = getSocket(package->src);
 
         switch (rcvdPayload->flag) {
+            // Project 4
+            case MSG:
+                if (fd == NULL_SOCKET)
+                    return FAIL;
+
+                sockets[fd].state = SENDING;
+                sockets[fd].rcvType = sockets[fd].sendType; // Get type from socket
+                dbg(TRANSPORT_CHANNEL, "Received MSG \n");
+
+                break;
+
+            case MSG_END:
+                if (fd == NULL_SOCKET)
+                    return FAIL;
+
+                sockets[fd].state = ESTABLISHED;
+                dbg(TRANSPORT_CHANNEL, "Received MSG_END \n");
+
+                break;
 
             case SYN:
 
@@ -335,6 +354,18 @@ implementation{
 
     }
 
+    // command void Transport.serverStart(uint8_t port){
+    //     return 0;
+    // }
+
+    // command void Tranport.clientStart(uint16_t dest, uint8_t srcPort, uint8_t destPort){
+    //     return 0;
+    // }
+
+    // command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg){
+    //     return 0;
+    // }
+
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
         if (len == sizeof(pack)) {
             pack* package = (pack*)payload;
@@ -370,7 +401,12 @@ implementation{
             currentSocket = sockets[i];
 
             switch (currentSocket.state){
-                
+
+                // Project 4
+                case SENDING:
+                    sendMsg(currentSocket.dest.addr);
+                    break;
+
                 case SYN_SENT:
                     // Retransmit SYN if waiting
                     if (synRetry < MAX_RETRIES){
