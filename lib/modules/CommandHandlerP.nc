@@ -111,7 +111,7 @@ implementation{
 
             case CMD_SEND:
                 dbg(COMMAND_CHANNEL, "Command Type: Send Message\n");
-                signal CommandHandler.send(buff[0], buff[1], (uint8_t*)&buff[2]);
+                signal CommandHandler.send(buff[0], buff[1], &buff[2]);
                 break;
 
             // End of new additions

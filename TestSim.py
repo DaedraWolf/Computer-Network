@@ -168,13 +168,13 @@ class TestSim:
         self.sendCMD(self.CMD_CLIENT_START, source, "{0}{1}{2}{3}".format(chr(dest), chr(srcPort), chr(destPort), "client start command"));
 
     def broadcast(self, source, msg):
-        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(0, 0, chr(msg), "broadcast command"));
+        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(chr(0), chr(0), msg, "broadcast command"));
 
     def unicast(self, source, dest, msg):
-        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(dest, 1, chr(msg), "unicast command"));
+        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(chr(dest), chr(1), msg, "unicast command"));
 
     def getList(self, source):
-        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(0, 2, 0, "get list command"));
+        self.sendCMD(self.CMD_SEND, source, "{0}{1}{2}{3}".format(chr(0), chr(2), chr(0), "get list command"));
 
 
     # end of new additions

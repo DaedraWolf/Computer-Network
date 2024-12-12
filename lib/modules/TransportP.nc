@@ -363,7 +363,7 @@ implementation{
     }
 
     command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg){
-        dbg(TRANSPORT_CHANNEL, "%d %d", dest, type);
+        dbg(TRANSPORT_CHANNEL, "%d %d %c\n", dest, type, msg[0]);
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
