@@ -140,9 +140,12 @@ implementation{
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                sockets[fd].state = SENDING;
-                sockets[fd].rcvType = sockets[fd].sendType; // Get type from socket
+                sockets[fd].cache = rcvdPayload;
+                sockets[fd].state = RECEIVING;
+                // sockets[fd].rcvType = sockets[fd].sendType; // Get type from socket
                 dbg(TRANSPORT_CHANNEL, "Received MSG_START \n");
+
+                sendAck(package->src, 0);
 
                 break;
 
