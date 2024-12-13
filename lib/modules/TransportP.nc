@@ -147,8 +147,7 @@ implementation{
                     case BROADCAST:
                         if(rcvdPayload->data != NULL) {
 
-                            dbg(TRANSPORT_CHANNEL, "Received broadcast message: %s\n", 
-                                rcvdPayload->data);
+                            dbg(TRANSPORT_CHANNEL, "Received broadcast message: %s\n", rcvdPayload->data);
 
                             if(TOS_NODE_ID == 1) { // If server, forward to all clients
                                 tcp_pack fwdPayload;
@@ -497,24 +496,50 @@ implementation{
                 break;
 
             case LIST_USER:
-                if(TOS_NODE_ID == 1) { // If server
+                if(TOS_NODE_ID == 1) { // Server handling
                     // Create list of connected users
                     uint8_t userList[SOCKET_BUFFER_SIZE];
-                    uint16_t i;
                     uint16_t offset = 0;
+                    uint16_t i;
+
+                    // Store number of users at start of list
+                    uint8_t numUsers = 0;
                     
+                    // First count connected users
                     for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
                         if(sockets[i].state == ESTABLISHED) {
-                            // Add node ID to list
-                            offset += sprintf((char*)(userList + offset), "%d,", 
-                                        sockets[i].dest.addr);
+                            numUsers++;
                         }
                     }
-                    if(offset > 0) userList[offset-1] = '\0'; // Remove last comma
+                    userList[offset++] = numUsers;  // Store count at start
+
+                    // Then store the actual user IDs
+                    for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+                        if(sockets[i].state == ESTABLISHED) {
+                            userList[offset++] = sockets[i].dest.addr;
+                            dbg(TRANSPORT_CHANNEL, "Adding node %d to list\n", sockets[i].dest.addr);
+                        }
+                    }
                     
                     msgPack.flag = MSG_START;
                     msgPack.data = userList;
-                    dbg(TRANSPORT_CHANNEL, "Sending user list: %s\n", userList);
+                    
+                    makePack(&package, TOS_NODE_ID, package.src, MAX_TTL, PROTOCOL_TCP, 
+                            seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
+                    call LinkState.send(package);
+                    
+                    dbg(TRANSPORT_CHANNEL, "Sending list of %d users to %d\n", numUsers, package.src);
+
+                } else { // Client handling
+                    uint8_t request = LIST_USER;
+                    msgPack.flag = MSG_START;
+                    msgPack.data = &request;
+                    
+                    makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, 
+                            seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
+                    call LinkState.send(package);
+                    
+                    dbg(TRANSPORT_CHANNEL, "Requesting user list from server\n");
                 }
                 break;
         }
