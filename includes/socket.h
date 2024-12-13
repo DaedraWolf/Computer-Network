@@ -16,7 +16,8 @@ enum socket_state{
     SYN_RCVD,
     BEGIN_SEND,
     REQUEST_LIST,
-    SENDING     // state for message operation
+    SENDING,     // state for message operation
+    RECEIVING
 };
 
 enum msg_type {
