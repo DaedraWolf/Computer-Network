@@ -7,7 +7,7 @@ enum tcp_flag{
     SYN,
     SYN_ACK,
     FIN,
-    MSG,  // messaging packets
+    MSG_START,  // messaging packets
     MSG_END     // end of message
 };
 

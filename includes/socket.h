@@ -14,7 +14,7 @@ enum socket_state{
     ESTABLISHED,
     SYN_SENT,
     SYN_RCVD,
-    MSG_START,
+    BEGIN_SEND,
     REQUEST_LIST,
     SENDING     // state for message operation
 };
