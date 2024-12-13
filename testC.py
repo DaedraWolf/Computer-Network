@@ -27,13 +27,18 @@ def main():
     s.runTime(300);
     s.serverStart(1, 41);
     s.runTime(60);
-
-    s.clientStart(4, 1, 3, 41);
+    s.serverStart(1, 41);
     s.runTime(60);
 
-    s.broadcast(1, "test");
-    s.runTime(1);
-    s.getList(1);
+    s.clientStart(4, 1, 3, 41);   
+    s.runTime(60);
+
+    s.clientStart(3, 1, 3, 41);
+    s.runTime(60);
+
+    s.broadcast(4, "test");
+    s.runTime(60);
+    s.getList(4);
     s.runTime(1000);
 
 

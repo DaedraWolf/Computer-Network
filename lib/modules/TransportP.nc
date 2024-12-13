@@ -1,4 +1,4 @@
-#define MAX_NUM_OF_SOCKETS 1
+#define MAX_NUM_OF_SOCKETS 4
 #define NULL_SOCKET 255
 #define SLIDING_WINDOW_SIZE 1
 #define TCP_TIMER_LENGTH 2000
@@ -140,35 +140,51 @@ implementation{
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                sockets[fd].state = SENDING;
-                sockets[fd].rcvType = sockets[fd].sendType; 
-                dbg(TRANSPORT_CHANNEL, "[MSG_START] Received  \n");
+                sockets[fd].state = RECEIVING;
                 
-                switch(sockets[fd].rcvType) {
-                case BROADCAST:
-                    if(TOS_NODE_ID == 1) { // Server forwards broadcast
-                        dbg(TRANSPORT_CHANNEL, "Broadcasting message\n");
-                        // Message will be forwarded in timer event
-                    }
+                // Handle different message types
+                switch(sockets[fd].sendType) {
+                    case BROADCAST:
+                        if(rcvdPayload->data != NULL) {
+                            dbg(TRANSPORT_CHANNEL, "Received broadcast message: %s\n", 
+                                rcvdPayload->data);
+                            if(TOS_NODE_ID == 1) { // If server, forward to all clients
+                                // uint16_t i;
+                                for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+                                    if(sockets[i].state == ESTABLISHED && sockets[i].dest.addr != package->src) {
+                                        pack fwdPackage;
+                                        makePack(&fwdPackage, TOS_NODE_ID, sockets[i].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)rcvdPayload, sizeof(tcp_pack));
+                                        call LinkState.send(fwdPackage);
+                                        dbg(TRANSPORT_CHANNEL, "Forwarding broadcast message to: %s \n", sockets[i].dest.addr);
+                                    }
+                                }
+                            }
+                        }
+                        break;
 
-                    break;
-                    
-                case UNICAST:
-                    if(TOS_NODE_ID == 1) { // Server forwards to specific client
-                        dbg(TRANSPORT_CHANNEL, "Forwarding whisper message\n");
-                        // Message will be forwarded in timer event
-                    }
+                    case UNICAST:
+                        if(rcvdPayload->data != NULL) {
+                            dbg(TRANSPORT_CHANNEL, "Received private message: %s\n", 
+                                rcvdPayload->data);
+                            if(TOS_NODE_ID == 1) { // If server, forward to target node
+                                socket_t targetFd = getSocket(rcvdPayload->data[1]); // Target node stored in data[1]
+                                if(targetFd != NULL_SOCKET) {
+                                    pack fwdPackage;
+                                    makePack(&fwdPackage, TOS_NODE_ID, sockets[targetFd].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)rcvdPayload, sizeof(tcp_pack));
+                                    call LinkState.send(fwdPackage);
+                                }
+                            }
+                        }
+                        break;
 
-                    break;
-                    
-                case LIST_USER:
-                    if(TOS_NODE_ID == 1) { // Server handles list request
-                        dbg(TRANSPORT_CHANNEL, "Processing user list request\n");
-                        sockets[fd].state = REQUEST_LIST;
-                    }
-
-                    break;
+                    case LIST_USER:
+                        if(rcvdPayload->data != NULL) {
+                            dbg(TRANSPORT_CHANNEL, "Received user list: %s\n", rcvdPayload->data);
+                        }
+                        break;
                 }
+
+                sendAck(package->src,0);
                 break;
 
             case MSG_END:
@@ -383,9 +399,7 @@ implementation{
         socket_t serverSocket;
         socket_addr_t addr;
 
-        if(serverSocket == NULL_SOCKET){
-            serverSocket = call Transport.socket();
-        }
+        serverSocket = call Transport.socket();
         
         if(serverSocket != NULL_SOCKET) {
             // Put socket in LISTEN state
@@ -430,7 +444,7 @@ implementation{
         socket_store_t *currentSocket;
         tcp_pack msgPack;
         pack package;
-
+        
         if(fd == NULL_SOCKET)
             currentSocket = &sockets[0];
         else
@@ -440,16 +454,64 @@ implementation{
         currentSocket->sendType = type;
 
         // Send MSG_START packet
-        msgPack.flag = MSG_START;
-        msgPack.data = msg;
+        // msgPack.flag = MSG_START;
+        // msgPack.data = msg;
         
-        if(type == BROADCAST) {
-            dbg(TRANSPORT_CHANNEL, "Broadcasting message: %s\n", msg);
+        switch(type) {
+            case BROADCAST:
+                msgPack.flag = MSG_START;
+                msgPack.data = msg;
+                if(TOS_NODE_ID == 1) { // If server, forward to all connected clients
+                    uint16_t i;
+                    for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+                        if(sockets[i].state == ESTABLISHED) {
+                            // Create new package for each client
+                            pack broadcastPack;
+                            makePack(&broadcastPack, TOS_NODE_ID, sockets[i].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
+                            call LinkState.send(broadcastPack);
+                            dbg(TRANSPORT_CHANNEL, "Broadcasting message to node %d\n", sockets[i].dest.addr);
+                        }
+                    }
+                } else {
+                    // If client, just send to server
+                    makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
+                    call LinkState.send(package);
+                    dbg(TRANSPORT_CHANNEL, "Sending broadcast message to server\n");
+                }
+                break;
+
+            case UNICAST:
+                msgPack.flag = MSG_START;
+                msgPack.data = msg;
+                dbg(TRANSPORT_CHANNEL, "Sending private message to node %d: %s\n", dest, msg);
+                break;
+
+            case LIST_USER:
+                if(TOS_NODE_ID == 1) { // If server
+                    // Create list of connected users
+                    uint8_t userList[SOCKET_BUFFER_SIZE];
+                    uint16_t i;
+                    uint16_t offset = 0;
+                    
+                    for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+                        if(sockets[i].state == ESTABLISHED) {
+                            // Add node ID to list
+                            offset += sprintf((char*)(userList + offset), "%d,", 
+                                        sockets[i].dest.addr);
+                        }
+                    }
+                    if(offset > 0) userList[offset-1] = '\0'; // Remove last comma
+                    
+                    msgPack.flag = MSG_START;
+                    msgPack.data = userList;
+                    dbg(TRANSPORT_CHANNEL, "Sending user list: %s\n", userList);
+                }
+                break;
         }
 
         makePack(&package, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
         call LinkState.send(package);
-
+        
         // The rest will be handled in timer fired event when state is BEGIN_SEND
         dbg(TRANSPORT_CHANNEL, "Initiated message send to %d\n", dest);
     }
