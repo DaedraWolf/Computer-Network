@@ -443,6 +443,10 @@ implementation{
         msgPack.flag = MSG_START;
         msgPack.data = msg;
         
+        if(type == BROADCAST) {
+            dbg(TRANSPORT_CHANNEL, "Broadcasting message: %s\n", msg);
+        }
+
         makePack(&package, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
         call LinkState.send(package);
 
