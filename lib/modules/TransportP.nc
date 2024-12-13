@@ -425,26 +425,29 @@ implementation{
         }
     }
 
-    command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg){
-        uint16_t i;
-        // socket_store_t *currentSocket;
-        // socket_t fd = getSocket(dest);
-        // tcp_pack sendPack;
-        // pack package;
+    command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg) {
+        socket_t fd = getSocket(dest);
+        socket_store_t *currentSocket;
+        tcp_pack msgPack;
+        pack package;
 
-        // if (fd == NULL_SOCKET)
-        //     currentSocket = &sockets[0];
-        // else
-        //     currentSocket = &sockets[fd];
+        if(fd == NULL_SOCKET)
+            currentSocket = &sockets[0];
+        else
+            currentSocket = &sockets[fd];
 
-        // sendPack.flag = MSG;
-        // sendPack.data[0] = type;
-        // sendPack.data[1] = dest;
-        // currentSocket->state = MSG_START;
-        // currentSocket->cache = &sendPack;
+        currentSocket->state = BEGIN_SEND;
+        currentSocket->sendType = type;
 
-        // makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&sendPack, sizeof(tcp_pack));
-        // call LinkState.send(package);
+        // Send MSG_START packet
+        msgPack.flag = MSG_START;
+        msgPack.data = msg;
+        
+        makePack(&package, TOS_NODE_ID, dest, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPack, sizeof(tcp_pack));
+        call LinkState.send(package);
+
+        // The rest will be handled in timer fired event when state is BEGIN_SEND
+        dbg(TRANSPORT_CHANNEL, "Initiated message send to %d\n", dest);
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
@@ -526,7 +529,7 @@ implementation{
 
                 case ESTABLISHED:
                     // if (currentSocket.src == TOS_NODE_ID) {
-                        sendData(i);
+                        // sendData(i);
                     // }
                     break;
 
