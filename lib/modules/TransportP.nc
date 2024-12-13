@@ -27,8 +27,8 @@ implementation{
     void sendAck(uint16_t addr, uint8_t seq);
 
     // Project 4
-    void sendMsgStart(socket_t fd);
-    void sendMsgEnd(socket_t fd);
+    void sendMsg(uint16_t addr);
+    void sendMsgEnd(uint16_t addr);
 
     void startTimer();
     uint8_t synRetry = 0;
@@ -140,13 +140,35 @@ implementation{
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                sockets[fd].cache = rcvdPayload;
-                sockets[fd].state = RECEIVING;
-                // sockets[fd].rcvType = sockets[fd].sendType; // Get type from socket
-                dbg(TRANSPORT_CHANNEL, "Received MSG_START \n");
+                sockets[fd].state = SENDING;
+                sockets[fd].rcvType = sockets[fd].sendType; 
+                dbg(TRANSPORT_CHANNEL, "[MSG_START] Received  \n");
+                
+                switch(sockets[fd].rcvType) {
+                case BROADCAST:
+                    if(TOS_NODE_ID == 1) { // Server forwards broadcast
+                        dbg(TRANSPORT_CHANNEL, "Broadcasting message\n");
+                        // Message will be forwarded in timer event
+                    }
 
-                sendAck(package->src, 0);
+                    break;
+                    
+                case UNICAST:
+                    if(TOS_NODE_ID == 1) { // Server forwards to specific client
+                        dbg(TRANSPORT_CHANNEL, "Forwarding whisper message\n");
+                        // Message will be forwarded in timer event
+                    }
 
+                    break;
+                    
+                case LIST_USER:
+                    if(TOS_NODE_ID == 1) { // Server handles list request
+                        dbg(TRANSPORT_CHANNEL, "Processing user list request\n");
+                        sockets[fd].state = REQUEST_LIST;
+                    }
+
+                    break;
+                }
                 break;
 
             case MSG_END:
@@ -405,22 +427,24 @@ implementation{
 
     command void Transport.send(uint16_t dest, enum msg_type type, uint8_t* msg){
         uint16_t i;
-        socket_store_t *currentSocket;
-        socket_t fd = getSocket(dest);
-        tcp_pack *sendPack;
-        pack package;
+        // socket_store_t *currentSocket;
+        // socket_t fd = getSocket(dest);
+        // tcp_pack sendPack;
+        // pack package;
 
         // if (fd == NULL_SOCKET)
         //     currentSocket = &sockets[0];
         // else
         //     currentSocket = &sockets[fd];
 
-        sendPack->flag = MSG_START;
-        sendPack->data[0] = type;
-        sendPack->data[1] = dest;
-        currentSocket->cache = (uint8_t*)sendPack;
+        // sendPack.flag = MSG;
+        // sendPack.data[0] = type;
+        // sendPack.data[1] = dest;
+        // currentSocket->state = MSG_START;
+        // currentSocket->cache = &sendPack;
 
-        sendMsgStart(fd);
+        // makePack(&package, TOS_NODE_ID, TEST_SERVER_NODE, MAX_TTL, PROTOCOL_TCP, 0, (uint8_t*)&sendPack, sizeof(tcp_pack));
+        // call LinkState.send(package);
     }
 
     event message_t* Receiver.receive(message_t* msg, void* payload, uint8_t len) {
@@ -460,8 +484,31 @@ implementation{
             switch (currentSocket.state){
 
                 // Project 4
-                case BEGIN_SEND:
-                    sendMsgStart(i);
+                case SENDING:
+                    switch(currentSocket.sendType){
+                        case BROADCAST:
+                            if(TOS_NODE_ID == 1) {
+                                // Broadcast to all clients
+                                for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
+                                    if(sockets[i].state == ESTABLISHED) {
+                                        sendMsg(sockets[i].dest.addr);
+                                    }
+                                }
+                            }
+                            break;
+
+                        case UNICAST:
+                            sendMsg(currentSocket.dest.addr);
+                            break;
+
+                        case LIST_USER:
+                            if(TOS_NODE_ID == 1) { 
+                                currentSocket.state = REQUEST_LIST;
+                            }
+                            break;
+                    }
+
+                    sendMsg(currentSocket.dest.addr);
                     break;
 
                 case SYN_SENT:
@@ -477,8 +524,10 @@ implementation{
                     sendSyn(currentSocket.dest.addr);
                     break;
 
-                case SENDING:
-                    sendData(i);
+                case ESTABLISHED:
+                    // if (currentSocket.src == TOS_NODE_ID) {
+                        sendData(i);
+                    // }
                     break;
 
                 case LISTEN:
@@ -492,25 +541,29 @@ implementation{
 
     // Added new helper functions for sending messages / ending (Project 4)
 
-    void sendMsgStart(socket_t fd){
-        pack package;
-        socket_store_t currentSocket = sockets[fd];
+    void sendMsg(uint16_t addr){
+        tcp_pack msgPacket;
+        pack msgPack;
+
+        msgPacket.flag = MSG_START;
         
-        makePack(&package, TOS_NODE_ID, sockets[fd].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&currentSocket.cache, sizeof(tcp_pack));
-        call LinkState.send(package);
+        makePack(&msgPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&msgPacket, sizeof(tcp_pack));
+        call LinkState.send(msgPack);
         
-        dbg(TRANSPORT_CHANNEL, "Sending MSG_SEND packet to %d\n", sockets[fd].dest);
+        dbg(TRANSPORT_CHANNEL, "Sending MSG packet to %d\n", addr);
     }
 
-    void sendMsgEnd(socket_t fd){
-        pack package;
-        socket_store_t currentSocket = sockets[fd];
+    void sendMsgEnd(uint16_t addr){
+        tcp_pack endPacket;
+        pack endPack;
+
+        endPacket.flag = MSG_END;
         
-        makePack(&package, TOS_NODE_ID, sockets[fd].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&currentSocket.cache, sizeof(tcp_pack));
-        call LinkState.send(package);
+        makePack(&endPack, TOS_NODE_ID, addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&endPacket, sizeof(tcp_pack));
+        call LinkState.send(endPack);
         
-        dbg(TRANSPORT_CHANNEL, "Sending MSG_END packet to %d\n", sockets[fd].dest);
-    }
+        dbg(TRANSPORT_CHANNEL, "Sending MSG_END packet to %d\n", addr);
+        }
     // New additions for Project 4 above
 
     void sendSyn(uint16_t addr){
