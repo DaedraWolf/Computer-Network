@@ -146,16 +146,26 @@ implementation{
                 switch(sockets[fd].sendType) {
                     case BROADCAST:
                         if(rcvdPayload->data != NULL) {
+
                             dbg(TRANSPORT_CHANNEL, "Received broadcast message: %s\n", 
                                 rcvdPayload->data);
+
                             if(TOS_NODE_ID == 1) { // If server, forward to all clients
-                                // uint16_t i;
+                                tcp_pack fwdPayload;
+
+                                // Copy the received payload data
+                                fwdPayload.flag = MSG_START;
+                                fwdPayload.data = rcvdPayload->data;
+
                                 for(i = 0; i < MAX_NUM_OF_SOCKETS; i++) {
                                     if(sockets[i].state == ESTABLISHED && sockets[i].dest.addr != package->src) {
                                         pack fwdPackage;
-                                        makePack(&fwdPackage, TOS_NODE_ID, sockets[i].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)rcvdPayload, sizeof(tcp_pack));
+                                        
+                                        dbg(TRANSPORT_CHANNEL, "Forwarding broadcast message to node: %d\n", 
+                                            sockets[i].dest.addr);
+                                            
+                                        makePack(&fwdPackage, TOS_NODE_ID, sockets[i].dest.addr, MAX_TTL, PROTOCOL_TCP, seqNum++, (uint8_t*)&fwdPayload, sizeof(tcp_pack));
                                         call LinkState.send(fwdPackage);
-                                        dbg(TRANSPORT_CHANNEL, "Forwarding broadcast message to: %s \n", sockets[i].dest.addr);
                                     }
                                 }
                             }

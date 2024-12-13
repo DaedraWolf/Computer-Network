@@ -37,71 +37,130 @@ Creating noise model for  7
 Creating noise model for  9
 Adding Channel command
 Adding Channel transport
-0:7:31.788086367 DEBUG (1): A Command has been Issued.
-0:7:31.788086367 DEBUG (1): Command Type: Server Start
-0:7:31.788086367 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
-0:9:5.308594560 DEBUG (1): A Command has been Issued.
-0:9:5.308594560 DEBUG (1): Command Type: Server Start
-0:9:5.308594560 DEBUG (1): [Transport.socket] Socket allocated with ID: 1
-0:10:35.125977546 DEBUG (4): A Command has been Issued.
-0:10:35.125977546 DEBUG (4): Command Type: Client Start
-0:10:35.125977546 DEBUG (4): Client attempting to connect to 1
-0:10:35.125977546 DEBUG (4): Client initiating connection to 1
-0:10:35.194428003 DEBUG (5): Forwarding TCP Package
-0:10:35.438858659 DEBUG (2): Forwarding TCP Package
-0:10:35.450882217 DEBUG (1): TCP Package received at 1 from 4
-0:10:35.450882217 DEBUG (1): Received SYN from 4
-0:10:35.450882217 DEBUG (1): [Transport.bind] Socket 0 current state: 1
-0:10:35.450882217 DEBUG (1): Socket binds to address 1, port 224
-0:10:35.450882217 DEBUG (1): LSP packet sent for socket 0
-0:10:35.450882217 DEBUG (1): Server socket bound successfully
-0:10:35.450882217 DEBUG (1): Sending SYN-ACK packet
-0:10:35.678817856 DEBUG (2): Forwarding TCP Package
-0:10:35.894516093 DEBUG (2): Forwarding TCP Package
-0:10:35.903595215 DEBUG (5): Forwarding TCP Package
-0:10:35.968612895 DEBUG (5): Forwarding TCP Package
-0:10:36.172226602 DEBUG (4): TCP Package received at 4 from 1
-0:10:36.172226602 DEBUG (4): Received ACK[1] from 1 
-0:10:36.172226602 DEBUG (4): Server established
-0:10:36.172226602 DEBUG (4): Sending ACK packet
-0:10:36.284317656 DEBUG (4): TCP Package received at 4 from 1
-0:10:36.284317656 DEBUG (4): [Transport.accept] Socket 0 state: 2
-0:10:36.332764175 DEBUG (5): Forwarding TCP Package
-0:10:36.446396497 DEBUG (2): Forwarding TCP Package
-0:10:36.506576786 DEBUG (1): TCP Package received at 1 from 4
-0:10:36.506576786 DEBUG (1): Received ACK[0] from 4 
-0:10:36.506576786 DEBUG (1): Server established
-0:10:36.506576786 DEBUG (1): Sending ACK packet
-0:10:36.568954572 DEBUG (2): Forwarding TCP Package
-0:10:36.793167337 DEBUG (5): Forwarding TCP Package
-0:12:7.902344189 DEBUG (3): A Command has been Issued.
-0:12:7.902344189 DEBUG (3): Command Type: Client Start
-0:12:7.902344189 DEBUG (3): Client attempting to connect to 1
-0:12:7.902344189 DEBUG (3): Client initiating connection to 1
-0:12:8.025024779 DEBUG (1): TCP Package received at 1 from 3
-0:12:8.025024779 DEBUG (1): Received SYN from 3
-0:12:8.025024779 DEBUG (1): [Transport.bind] Socket 1 current state: 1
-0:12:8.025024779 DEBUG (1): Socket binds to address 1, port 224
-0:12:8.025024779 DEBUG (1): LSP packet sent for socket 1
-0:12:8.025024779 DEBUG (1): Server socket bound successfully
-0:12:8.025024779 DEBUG (1): Sending SYN-ACK packet
-0:12:8.196930029 DEBUG (3): TCP Package received at 3 from 1
-0:12:8.196930029 DEBUG (3): Received ACK[1] from 1 
-0:12:8.196930029 DEBUG (3): Server established
-0:12:8.196930029 DEBUG (3): Sending ACK packet
-0:12:8.214416880 DEBUG (1): TCP Package received at 1 from 3
-0:12:8.214416880 DEBUG (1): Received ACK[0] from 3 
-0:12:8.214416880 DEBUG (1): Server established
-0:12:8.214416880 DEBUG (1): Sending ACK packet
-0:12:8.347610570 DEBUG (3): TCP Package received at 3 from 1
-0:12:8.347610570 DEBUG (3): [Transport.accept] Socket 0 state: 2
-0:12:8.462295666 DEBUG (3): TCP Package received at 3 from 1
-0:12:8.462295666 DEBUG (3): Received ACK[0] from 1 
-0:13:39.215820856 DEBUG (4): A Command has been Issued.
-0:13:39.215820856 DEBUG (4): Command Type: Send Message
-0:13:39.215820856 DEBUG (4): Sending broadcast message to server
-0:13:39.215820856 DEBUG (4): Initiated message send to 0
-0:13:39.485138454 DEBUG (5): Forwarding TCP Package
-0:13:39.701508207 DEBUG (2): Forwarding TCP Package
-0:13:39.741531616 DEBUG (1): TCP Package received at 1 from 4
-0:13:39.741531616 DEBUG (1): Received broadcast message: test
+0:7:39.375000687 DEBUG (1): A Command has been Issued.
+0:7:39.375000687 DEBUG (1): Command Type: Server Start
+0:7:39.375000687 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
+0:9:12.717773724 DEBUG (1): A Command has been Issued.
+0:9:12.717773724 DEBUG (1): Command Type: Server Start
+0:9:12.717773724 DEBUG (1): [Transport.socket] Socket allocated with ID: 1
+0:10:45.656250420 DEBUG (1): A Command has been Issued.
+0:10:45.656250420 DEBUG (1): Command Type: Server Start
+0:10:45.656250420 DEBUG (1): [Transport.socket] Socket allocated with ID: 2
+0:12:14.599609652 DEBUG (4): A Command has been Issued.
+0:12:14.599609652 DEBUG (4): Command Type: Client Start
+0:12:14.599609652 DEBUG (4): Client attempting to connect to 1
+0:12:14.599609652 DEBUG (4): Client initiating connection to 1
+0:12:14.621887710 DEBUG (5): Forwarding TCP Package
+0:12:14.654541683 DEBUG (2): Forwarding TCP Package
+0:12:14.864898918 DEBUG (1): TCP Package received at 1 from 4
+0:12:14.864898918 DEBUG (1): Received SYN from 4
+0:12:14.864898918 DEBUG (1): [Transport.bind] Socket 0 current state: 1
+0:12:14.864898918 DEBUG (1): Socket binds to address 1, port 96
+0:12:14.864898918 DEBUG (1): LSP packet sent for socket 0
+0:12:14.864898918 DEBUG (1): Server socket bound successfully
+0:12:14.864898918 DEBUG (1): Sending SYN-ACK packet
+0:12:15.089202998 DEBUG (2): Forwarding TCP Package
+0:12:15.205475120 DEBUG (5): Forwarding TCP Package
+0:12:15.321457021 DEBUG (2): Forwarding TCP Package
+0:12:15.378876384 DEBUG (4): TCP Package received at 4 from 1
+0:12:15.378876384 DEBUG (4): Received ACK[1] from 1 
+0:12:15.378876384 DEBUG (4): Server established
+0:12:15.378876384 DEBUG (4): Sending ACK packet
+0:12:15.475616724 DEBUG (5): Forwarding TCP Package
+0:12:15.558426429 DEBUG (5): Forwarding TCP Package
+0:12:15.608048151 DEBUG (4): TCP Package received at 4 from 1
+0:12:15.608048151 DEBUG (4): [Transport.accept] Socket 0 state: 2
+0:12:15.791641895 DEBUG (2): Forwarding TCP Package
+0:12:15.991409530 DEBUG (1): TCP Package received at 1 from 4
+0:12:15.991409530 DEBUG (1): Received ACK[0] from 4 
+0:12:15.991409530 DEBUG (1): Server established
+0:12:15.991409530 DEBUG (1): Sending ACK packet
+0:12:16.273086646 DEBUG (2): Forwarding TCP Package
+0:12:16.357986716 DEBUG (5): Forwarding TCP Package
+0:12:16.458756163 DEBUG (4): TCP Package received at 4 from 1
+0:12:16.458756163 DEBUG (4): Received ACK[0] from 1 
+0:13:46.528442795 DEBUG (3): A Command has been Issued.
+0:13:46.528442795 DEBUG (3): Command Type: Client Start
+0:13:46.528442795 DEBUG (3): Client attempting to connect to 1
+0:13:46.528442795 DEBUG (3): Client initiating connection to 1
+0:13:46.653747930 DEBUG (1): TCP Package received at 1 from 3
+0:13:46.653747930 DEBUG (1): Received SYN from 3
+0:13:46.653747930 DEBUG (1): [Transport.bind] Socket 1 current state: 1
+0:13:46.653747930 DEBUG (1): Socket binds to address 1, port 96
+0:13:46.653747930 DEBUG (1): LSP packet sent for socket 1
+0:13:46.653747930 DEBUG (1): Server socket bound successfully
+0:13:46.653747930 DEBUG (1): Sending SYN-ACK packet
+0:13:46.889358658 DEBUG (3): TCP Package received at 3 from 1
+0:13:46.889358658 DEBUG (3): Received ACK[1] from 1 
+0:13:46.889358658 DEBUG (3): Server established
+0:13:46.889358658 DEBUG (3): Sending ACK packet
+0:13:46.900513063 DEBUG (1): TCP Package received at 1 from 3
+0:13:46.900513063 DEBUG (1): Received ACK[0] from 3 
+0:13:46.900513063 DEBUG (1): Server established
+0:13:46.900513063 DEBUG (1): Sending ACK packet
+0:13:46.977615452 DEBUG (3): TCP Package received at 3 from 1
+0:13:46.977615452 DEBUG (3): [Transport.accept] Socket 0 state: 2
+0:13:47.081894023 DEBUG (3): TCP Package received at 3 from 1
+0:13:47.081894023 DEBUG (3): Received ACK[0] from 1 
+0:15:19.521484785 DEBUG (2): A Command has been Issued.
+0:15:19.521484785 DEBUG (2): Command Type: Client Start
+0:15:19.521484785 DEBUG (2): Client attempting to connect to 1
+0:15:19.521484785 DEBUG (2): Client initiating connection to 1
+0:15:19.723495713 DEBUG (1): TCP Package received at 1 from 2
+0:15:19.723495713 DEBUG (1): Received SYN from 2
+0:15:19.723495713 DEBUG (1): [Transport.bind] Socket 2 current state: 1
+0:15:19.723495713 DEBUG (1): Socket binds to address 1, port 96
+0:15:19.723495713 DEBUG (1): LSP packet sent for socket 2
+0:15:19.723495713 DEBUG (1): Server socket bound successfully
+0:15:19.723495713 DEBUG (1): Sending SYN-ACK packet
+0:15:19.861053564 DEBUG (2): TCP Package received at 2 from 1
+0:15:19.861053564 DEBUG (2): Received ACK[1] from 1 
+0:15:19.861053564 DEBUG (2): Server established
+0:15:19.861053564 DEBUG (2): Sending ACK packet
+0:15:19.921875153 DEBUG (1): Sending SYN packet
+0:15:20.013000733 DEBUG (1): TCP Package received at 1 from 2
+0:15:20.013000733 DEBUG (1): Received ACK[0] from 2 
+0:15:20.013000733 DEBUG (1): Server established
+0:15:20.013000733 DEBUG (1): Sending ACK packet
+0:15:20.076461926 DEBUG (2): TCP Package received at 2 from 1
+0:15:20.076461926 DEBUG (2): [Transport.accept] Socket 0 state: 2
+0:15:20.310760604 DEBUG (2): TCP Package received at 2 from 1
+0:15:20.310760604 DEBUG (2): Received SYN from 1
+0:15:20.310760604 DEBUG (2): [Transport.bind] Socket 0 current state: 2
+0:15:20.310760604 DEBUG (2): [Transport.bind] Unable to bind
+0:15:20.310760604 DEBUG (2): Failed to bind server socket
+0:15:20.505325405 DEBUG (2): TCP Package received at 2 from 1
+0:15:20.505325405 DEBUG (2): Received ACK[0] from 1 
+0:16:51.754425546 DEBUG (4): A Command has been Issued.
+0:16:51.754425546 DEBUG (4): Command Type: Send Message
+0:16:51.754425546 DEBUG (4): Sending broadcast message to server
+0:16:51.754425546 DEBUG (4): Initiated message send to 0
+0:16:51.835403970 DEBUG (5): Forwarding TCP Package
+0:16:51.903000515 DEBUG (2): Forwarding TCP Package
+0:16:52.109527759 DEBUG (1): TCP Package received at 1 from 4
+0:16:52.109527759 DEBUG (1): Received broadcast message: test
+0:16:52.109527759 DEBUG (1): Forwarding broadcast message to node: 3
+0:16:52.109527759 DEBUG (1): Forwarding broadcast message to node: 2
+0:16:52.109527759 DEBUG (1): Sending ACK packet
+0:16:52.243026830 DEBUG (3): TCP Package received at 3 from 1
+0:16:52.243026830 DEBUG (3): Received broadcast message: test
+0:16:52.243026830 DEBUG (3): Sending ACK packet
+0:16:52.392639267 DEBUG (2): TCP Package received at 2 from 1
+0:16:52.392639267 DEBUG (2): Received broadcast message: test
+0:16:52.392639267 DEBUG (2): Sending ACK packet
+0:16:52.442978287 DEBUG (1): TCP Package received at 1 from 3
+0:16:52.442978287 DEBUG (1): Received ACK[0] from 3 
+0:16:52.510131941 DEBUG (2): Forwarding TCP Package
+0:16:52.614746314 DEBUG (1): TCP Package received at 1 from 2
+0:16:52.614746314 DEBUG (1): Received ACK[0] from 2 
+0:16:52.840072860 DEBUG (5): Forwarding TCP Package
+0:16:53.099106490 DEBUG (4): TCP Package received at 4 from 1
+0:16:53.099106490 DEBUG (4): Received ACK[0] from 1 
+0:18:24.581055631 DEBUG (4): A Command has been Issued.
+0:18:24.581055631 DEBUG (4): Command Type: Send Message
+0:18:24.581055631 DEBUG (4): Initiated message send to 0
+0:20:0.102539206 DEBUG (4): A Command has been Issued.
+0:20:0.102539206 DEBUG (4): Command Type: Send Message
+0:20:0.102539206 DEBUG (4): Sending private message to node 3: test 2
+0:20:0.102539206 DEBUG (4): Initiated message send to 3
+0:20:0.217194097 DEBUG (3): TCP Package received at 3 from 4

@@ -29,6 +29,8 @@ def main():
     s.runTime(60);
     s.serverStart(1, 41);
     s.runTime(60);
+    s.serverStart(1, 41);
+    s.runTime(60);
 
     s.clientStart(4, 1, 3, 41);   
     s.runTime(60);
@@ -36,9 +38,14 @@ def main():
     s.clientStart(3, 1, 3, 41);
     s.runTime(60);
 
+    s.clientStart(2, 1, 3, 41);   
+    s.runTime(60);
+
     s.broadcast(4, "test");
     s.runTime(60);
     s.getList(4);
+    s.runTime(60);
+    s.unicast(4, 3, "test 2");
     s.runTime(1000);
 
 
