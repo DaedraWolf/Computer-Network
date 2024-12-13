@@ -140,7 +140,7 @@ implementation{
                 if (fd == NULL_SOCKET)
                     return FAIL;
 
-                sockets[fd].state = SENDING;
+                sockets[fd].state = BEGIN_SEND;
                 sockets[fd].rcvType = sockets[fd].sendType; 
                 dbg(TRANSPORT_CHANNEL, "[MSG_START] Received  \n");
                 
@@ -149,6 +149,7 @@ implementation{
                     if(TOS_NODE_ID == 1) { // Server forwards broadcast
                         dbg(TRANSPORT_CHANNEL, "Broadcasting message\n");
                         // Message will be forwarded in timer event
+                        sockets[fd].state = SENDING;
                     }
 
                     break;
@@ -156,6 +157,7 @@ implementation{
                 case UNICAST:
                     if(TOS_NODE_ID == 1) { // Server forwards to specific client
                         dbg(TRANSPORT_CHANNEL, "Forwarding whisper message\n");
+                        sockets[fd].state = SENDING;
                         // Message will be forwarded in timer event
                     }
 
@@ -387,9 +389,18 @@ implementation{
             serverSocket = call Transport.socket();
         }
         
-        if(serverSocket != NULL_SOCKET){
-            addr.port = port;
-            addr.addr = TOS_NODE_ID;
+        if(serverSocket != NULL_SOCKET) {
+            // Put socket in LISTEN state
+            if(call Transport.listen(serverSocket) == SUCCESS) {
+                dbg(TRANSPORT_CHANNEL, "Server socket in LISTEN state\n");
+                
+                // Now bind
+                addr.port = port;
+                addr.addr = TOS_NODE_ID;
+                if(call Transport.bind(serverSocket, &addr) == SUCCESS) {
+                    dbg(TRANSPORT_CHANNEL, "Server bound to port %d\n", port);
+                }
+            }
         }
     }
 
@@ -398,13 +409,21 @@ implementation{
         socket_addr_t addr;
 
         if(clientSocket == NULL_SOCKET){
+
             clientSocket = call Transport.socket();
         }
 
         if(clientSocket != NULL_SOCKET){
-            sockets[clientSocket].src = srcPort;
+            
             addr.port = destPort;
             addr.addr = dest;
+
+            sockets[clientSocket].src = srcPort;
+
+            dbg(TRANSPORT_CHANNEL, "Client attempting to connect to %d\n", dest);
+            if(call Transport.connect(clientSocket, &addr) == SUCCESS) {
+                dbg(TRANSPORT_CHANNEL, "Client initiating connection to %d\n", dest);
+            }
         }
     }
 
