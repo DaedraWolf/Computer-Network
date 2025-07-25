@@ -1,0 +1,134 @@
+Creating Topo!
+Number of Motes 9
+  1   2   -54.0
+  1   3   -54.0
+  2   1   -54.0
+  2   3   -54.0
+  2   5   -54.0
+  3   1   -54.0
+  3   2   -54.0
+  3   4   -54.0
+  3   5   -54.0
+  3   6   -54.0
+  4   3   -54.0
+  4   5   -54.0
+  4   6   -54.0
+  4   8   -54.0
+  5   2   -54.0
+  5   3   -54.0
+  5   4   -54.0
+  5   7   -54.0
+  6   3   -54.0
+  6   4   -54.0
+  7   5   -54.0
+  7   8   -54.0
+  8   4   -54.0
+  8   7   -54.0
+  8   9   -54.0
+  9   8   -54.0
+Creating noise model for  1
+Creating noise model for  2
+Creating noise model for  3
+Creating noise model for  5
+Creating noise model for  4
+Creating noise model for  6
+Creating noise model for  8
+Creating noise model for  7
+Creating noise model for  9
+Adding Channel command
+Adding Channel transport
+0:7:35.235886251 DEBUG (1): A Command has been Issued.
+0:7:35.235886251 DEBUG (1): Command Type: Server
+0:7:35.235886251 DEBUG (1): SETTING TEST SERVER... 
+0:7:35.235886251 DEBUG (1): [Transport.socket] Socket allocated with ID: 0
+0:9:8.524414472 DEBUG (4): A Command has been Issued.
+0:9:8.524414472 DEBUG (4): Command Type: Client
+0:9:8.524414472 DEBUG (4): SETTING TEST CLIENT... 
+0:9:8.524414472 DEBUG (4): [Transport.socket] Socket allocated with ID: 0
+0:9:8.802002459 DEBUG (3): Forwarding TCP Package
+0:9:8.828125543 DEBUG (4): Sending SYN packet
+0:9:8.998718754 DEBUG (3): Forwarding TCP Package
+0:9:9.024521247 DEBUG (1): TCP Package received at 1 from 4
+0:9:9.024521247 DEBUG (1): Received SYN from 4
+0:9:9.024521247 DEBUG (1): [Transport.bind] Socket 0 current state: 1
+0:9:9.024521247 DEBUG (1): Socket binds to address 1, port 176
+0:9:9.024521247 DEBUG (1): LSP packet sent for socket 0
+0:9:9.024521247 DEBUG (1): Server socket bound successfully
+0:9:9.024521247 DEBUG (1): Sending SYN-ACK packet
+0:9:9.127380737 DEBUG (1): TCP Package received at 1 from 4
+0:9:9.127380737 DEBUG (1): Received SYN from 4
+0:9:9.127380737 DEBUG (1): [Transport.bind] Socket 0 current state: 4
+0:9:9.127380737 DEBUG (1): [Transport.bind] Unable to bind
+0:9:9.127380737 DEBUG (1): Failed to bind server socket
+0:9:9.178695786 DEBUG (3): Forwarding TCP Package
+0:9:9.319229234 DEBUG (3): Forwarding TCP Package
+0:9:9.330841462 DEBUG (4): TCP Package received at 4 from 1
+0:9:9.330841462 DEBUG (4): Received ACK[1] from 1 
+0:9:9.330841462 DEBUG (4): Server established
+0:9:9.330841462 DEBUG (4): Sending ACK packet
+0:9:9.552338156 DEBUG (3): Forwarding TCP Package
+0:9:9.585983639 DEBUG (4): TCP Package received at 4 from 1
+0:9:9.585983639 DEBUG (4): [Transport.accept] Socket 0 state: 2
+0:9:9.878204701 DEBUG (1): TCP Package received at 1 from 4
+0:9:9.878204701 DEBUG (1): Received ACK[0] from 4 
+0:9:9.878204701 DEBUG (1): Server established
+0:9:9.878204701 DEBUG (1): Sending ACK packet
+0:9:10.054748642 DEBUG (3): Forwarding TCP Package
+0:9:10.106338881 DEBUG (4): TCP Package received at 4 from 1
+0:9:10.106338881 DEBUG (4): Received ACK[0] from 1 
+0:9:10.781250153 DEBUG (1): Sending Data to 4; data_seq: 1; data: 0
+0:9:10.781250553 DEBUG (4): Sending Data to 1; data_seq: 1; data: 98
+0:9:10.856888356 DEBUG (3): Forwarding TCP Package
+0:9:11.021973050 DEBUG (1): TCP Package received at 1 from 4
+0:9:11.021973050 DEBUG (1): Received DATA from 4; seq: 1; data: 98
+0:9:11.021973050 DEBUG (1): DATA[1] accepted
+0:9:11.021973050 DEBUG (1): Sending ACK packet
+0:9:11.039901841 DEBUG (3): Forwarding TCP Package
+0:9:11.056808567 DEBUG (3): Forwarding TCP Package
+0:9:11.178116211 DEBUG (4): TCP Package received at 4 from 1
+0:9:11.178116211 DEBUG (4): Received DATA from 1; seq: 1; data: 0
+0:9:11.178116211 DEBUG (4): DATA[1] accepted
+0:9:11.178116211 DEBUG (4): Sending ACK packet
+0:9:11.277084737 DEBUG (4): TCP Package received at 4 from 1
+0:9:11.277084737 DEBUG (4): Received ACK[1] from 1 
+0:9:11.320236731 DEBUG (3): Forwarding TCP Package
+0:9:11.446533593 DEBUG (1): TCP Package received at 1 from 4
+0:9:11.446533593 DEBUG (1): Received ACK[1] from 4 
+0:9:12.734375143 DEBUG (1): Sending Data to 4; data_seq: 2; data: 0
+0:9:12.734375543 DEBUG (4): Sending Data to 1; data_seq: 2; data: 99
+0:9:12.774658298 DEBUG (3): Forwarding TCP Package
+0:9:12.892120766 DEBUG (4): TCP Package received at 4 from 1
+0:9:12.892120766 DEBUG (4): Received DATA from 1; seq: 2; data: 0
+0:9:12.892120766 DEBUG (4): DATA[2] accepted
+0:9:12.892120766 DEBUG (4): Sending ACK packet
+0:9:12.998871363 DEBUG (3): Forwarding TCP Package
+0:9:13.097275145 DEBUG (1): TCP Package received at 1 from 4
+0:9:13.097275145 DEBUG (1): Received DATA from 4; seq: 2; data: 99
+0:9:13.097275145 DEBUG (1): DATA[2] accepted
+0:9:13.097275145 DEBUG (1): Sending ACK packet
+0:9:13.197860833 DEBUG (3): Forwarding TCP Package
+0:9:13.241409802 DEBUG (3): Forwarding TCP Package
+0:9:13.477264791 DEBUG (4): TCP Package received at 4 from 1
+0:9:13.477264791 DEBUG (4): Received ACK[2] from 1 
+0:9:13.644226473 DEBUG (1): TCP Package received at 1 from 4
+0:9:13.644226473 DEBUG (1): Received ACK[2] from 4 
+0:9:14.687500143 DEBUG (1): Sending Data to 4; data_seq: 3; data: 0
+0:9:14.687500543 DEBUG (4): Sending Data to 1; data_seq: 3; data: 100
+0:9:14.735092266 DEBUG (3): Forwarding TCP Package
+0:9:14.746109510 DEBUG (3): Forwarding TCP Package
+0:9:15.017319095 DEBUG (4): TCP Package received at 4 from 1
+0:9:15.017319095 DEBUG (4): Received DATA from 1; seq: 3; data: 0
+0:9:15.017319095 DEBUG (4): DATA[3] accepted
+0:9:15.017319095 DEBUG (4): Sending ACK packet
+0:9:15.039566533 DEBUG (3): Forwarding TCP Package
+0:9:15.154907620 DEBUG (1): TCP Package received at 1 from 4
+0:9:15.154907620 DEBUG (1): Received DATA from 4; seq: 3; data: 100
+0:9:15.154907620 DEBUG (1): DATA[3] accepted
+0:9:15.154907620 DEBUG (1): Sending ACK packet
+0:9:15.274902703 DEBUG (1): TCP Package received at 1 from 4
+0:9:15.274902703 DEBUG (1): Received ACK[3] from 4 
+0:9:15.438110489 DEBUG (3): Forwarding TCP Package
+0:9:15.478561758 DEBUG (4): TCP Package received at 4 from 1
+0:9:15.478561758 DEBUG (4): Received ACK[3] from 1 
+0:9:16.640625173 DEBUG (1): Sending Data to 4; data_seq: 4; data: 0
+0:9:16.640625573 DEBUG (4): Sending Data to 1; data_seq: 4; data: 101
