@@ -1,6 +1,7 @@
 # Introduction
-This skeleton code is the basis for the CSE160 network project. Additional documentation
-on what is expected will be provided as the school year continues.
+This was initially a skeleton code. The basis for the CSE160 network project. The project 
+was designed and implemented by the student throughout the semester using the OSI 5 Layers 
+(Physical, Data Link, Network, Transport, Application). 
 
 # General Information
 ## Data Structures
